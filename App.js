@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, TextInput, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FOOD_DATABASE = {
 
@@ -49,33 +50,133 @@ const FOOD_DATABASE = {
   snickers: { name: '🍫 Snickers (Standard 48g)', carbs: 24 },
 };
 
+const MAX_CUSTOM_CARBS = 300;
+const MAX_RATIO = 100;
+const HIGH_DOSE_WARNING_UNITS = 20;
+const MAX_CORRECTION_FACTOR = 250;
+const BG_LIMITS = {
+  mmol: { min: 2, max: 33, unitLabel: 'mmol/L' },
+  mgdl: { min: 36, max: 600, unitLabel: 'mg/dL' }
+};
+const SETTINGS_STORAGE_KEY = 'carb-counter-settings-v1';
+
+const roundToStep = (value, step) => Math.round(value / step) * step;
+const isValidRoundingStep = (value) => value === '0.5' || value === '1';
+const isValidBgUnit = (value) => value === 'mmol' || value === 'mgdl';
+
 export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [ratio, setRatio] = useState('');
   const [customCarbs, setCustomCarbs] = useState('');
   const [mealPlate, setMealPlate] = useState([]);
   const [history, setHistory] = useState([]);
+  const [roundingStep, setRoundingStep] = useState('0.5');
+  const [bgUnit, setBgUnit] = useState('mmol');
+  const [currentBg, setCurrentBg] = useState('');
+  const [targetBg, setTargetBg] = useState('');
+  const [correctionFactor, setCorrectionFactor] = useState('');
   const [calculatedDose, setCalculatedDose] = useState(null);
+
+  useEffect(() => {
+    const loadSavedSettings = async () => {
+      try {
+        const rawSettings = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+        if (!rawSettings) {
+          return;
+        }
+        const parsed = JSON.parse(rawSettings);
+        if (typeof parsed.ratio === 'string') {
+          setRatio(parsed.ratio);
+        }
+        if (typeof parsed.roundingStep === 'string' && isValidRoundingStep(parsed.roundingStep)) {
+          setRoundingStep(parsed.roundingStep);
+        }
+        if (typeof parsed.bgUnit === 'string' && isValidBgUnit(parsed.bgUnit)) {
+          setBgUnit(parsed.bgUnit);
+        }
+        if (typeof parsed.targetBg === 'string') {
+          setTargetBg(parsed.targetBg);
+        }
+        if (typeof parsed.correctionFactor === 'string') {
+          setCorrectionFactor(parsed.correctionFactor);
+        }
+      } catch (error) {
+        console.error('Failed to load settings', error);
+        alert('Could not load saved settings. Please check app permissions/storage and try again.');
+      }
+    };
+
+    loadSavedSettings();
+  }, []);
 
   const addFoodToPlate = (foodKey, isCustom = false) => {
     if (isCustom) {
       const carbsAmount = parseFloat(customCarbs);
-      if (isNaN(carbsAmount) || carbsAmount <= 0) {
-        alert('Please enter a valid carbohydrate number');
+      if (isNaN(carbsAmount) || carbsAmount <= 0 || carbsAmount > MAX_CUSTOM_CARBS) {
+        alert(`Please enter a valid carbohydrate amount between 0 and ${MAX_CUSTOM_CARBS}g`);
         return;
       }
-      setMealPlate([...mealPlate, { id: Date.now().toString(), name: '✏️ Custom Manual Food', carbs: carbsAmount }]);
+      setMealPlate((prevPlate) => [
+        ...prevPlate,
+        { id: Date.now().toString(), name: '✏️ Custom Manual Food', carbs: carbsAmount }
+      ]);
       setCustomCarbs('');
     } else {
       const foodItem = FOOD_DATABASE[foodKey];
-      setMealPlate([...mealPlate, { id: Date.now().toString(), name: foodItem.name, carbs: foodItem.carbs }]);
+      setMealPlate((prevPlate) => [
+        ...prevPlate,
+        { id: Date.now().toString(), name: foodItem.name, carbs: foodItem.carbs }
+      ]);
       setShowMenu(false);
     }
   };
 
   const removeFoodFromPlate = (id) => {
-    setMealPlate(mealPlate.filter(item => item.id !== id));
+    setMealPlate((prevPlate) => prevPlate.filter((item) => item.id !== id));
     setCalculatedDose(null);
+  };
+
+  const clearPlate = () => {
+    setMealPlate([]);
+    setCalculatedDose(null);
+  };
+
+  const savePersonalSettings = async () => {
+    const parsedRatio = ratio === '' ? null : parseFloat(ratio);
+    const parsedTargetBg = targetBg === '' ? null : parseFloat(targetBg);
+    const parsedCorrectionFactor = correctionFactor === '' ? null : parseFloat(correctionFactor);
+    const selectedLimits = BG_LIMITS[bgUnit];
+
+    if (parsedRatio !== null && (isNaN(parsedRatio) || parsedRatio <= 0 || parsedRatio > MAX_RATIO)) {
+      alert(`Please enter a valid Insulin-to-Carb Ratio between 1 and ${MAX_RATIO} before saving.`);
+      return;
+    }
+
+    if (parsedTargetBg !== null && (isNaN(parsedTargetBg) || parsedTargetBg < selectedLimits.min || parsedTargetBg > selectedLimits.max)) {
+      alert(`Target BG must be between ${selectedLimits.min} and ${selectedLimits.max} ${selectedLimits.unitLabel}.`);
+      return;
+    }
+
+    if (parsedCorrectionFactor !== null && (isNaN(parsedCorrectionFactor) || parsedCorrectionFactor <= 0 || parsedCorrectionFactor > MAX_CORRECTION_FACTOR)) {
+      alert(`Correction factor must be between 0 and ${MAX_CORRECTION_FACTOR}.`);
+      return;
+    }
+
+    const settingsToSave = {
+      ratio,
+      roundingStep,
+      bgUnit,
+      targetBg,
+      correctionFactor
+    };
+
+    try {
+      await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settingsToSave));
+      alert('Personal settings saved. They will load automatically next time.');
+    } catch (error) {
+      console.error('Failed to save settings', error);
+      alert('Could not save settings. Please try again.');
+    }
   };
 
   const totalCarbsOnPlate = mealPlate.reduce((sum, item) => sum + item.carbs, 0);
@@ -83,28 +184,76 @@ export default function App() {
   const calculateTotalMealDose = () => {
     Keyboard.dismiss();
     const insulinRatio = parseFloat(ratio);
+    const doseStep = parseFloat(roundingStep);
+    const hasCorrectionInput = currentBg !== '' || targetBg !== '' || correctionFactor !== '';
 
     if (mealPlate.length === 0) {
       alert('Your meal plate is empty! Add foods from the database first.');
       return;
     }
-    if (isNaN(insulinRatio) || insulinRatio <= 0) {
-      alert('Please enter a valid Insulin-to-Carb Ratio');
+    if (isNaN(insulinRatio) || insulinRatio <= 0 || insulinRatio > MAX_RATIO) {
+      alert(`Please enter a valid Insulin-to-Carb Ratio between 1 and ${MAX_RATIO}`);
       return;
     }
 
-    const dose = totalCarbsOnPlate / insulinRatio;
-    const finalDoseString = `${dose.toFixed(1)} Units`;
-    setCalculatedDose(finalDoseString);
+    const mealDose = totalCarbsOnPlate / insulinRatio;
+    let correctionDose = 0;
+    let isBelowOrAtTarget = false;
+
+    if (hasCorrectionInput) {
+      const currentBgValue = parseFloat(currentBg);
+      const targetBgValue = parseFloat(targetBg);
+      const correctionFactorValue = parseFloat(correctionFactor);
+      const selectedLimits = BG_LIMITS[bgUnit];
+
+      if (isNaN(currentBgValue) || isNaN(targetBgValue) || isNaN(correctionFactorValue)) {
+        alert('For correction dose, enter valid numbers for current BG, target BG, and correction factor.');
+        return;
+      }
+
+      if (
+        currentBgValue < selectedLimits.min ||
+        currentBgValue > selectedLimits.max ||
+        targetBgValue < selectedLimits.min ||
+        targetBgValue > selectedLimits.max
+      ) {
+        alert(`BG values must be between ${selectedLimits.min} and ${selectedLimits.max} ${selectedLimits.unitLabel}.`);
+        return;
+      }
+
+      if (correctionFactorValue <= 0 || correctionFactorValue > MAX_CORRECTION_FACTOR) {
+        alert(`Correction factor must be between 0 and ${MAX_CORRECTION_FACTOR}.`);
+        return;
+      }
+
+      const difference = currentBgValue - targetBgValue;
+      isBelowOrAtTarget = difference <= 0;
+      correctionDose = isBelowOrAtTarget ? 0 : difference / correctionFactorValue;
+    }
+
+    const exactDose = mealDose + correctionDose;
+    const roundedDose = roundToStep(exactDose, doseStep);
+    const finalDoseString = `${roundedDose.toFixed(1)} Units`;
+    setCalculatedDose({
+      mealDose: mealDose.toFixed(2),
+      correctionDose: correctionDose.toFixed(2),
+      exactDose: exactDose.toFixed(2),
+      roundedDose: roundedDose.toFixed(1),
+      step: doseStep,
+      correctionUsed: hasCorrectionInput,
+      belowOrAtTarget: isBelowOrAtTarget
+    });
 
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    setHistory([{
+    setHistory((prevHistory) => [{
       id: Date.now().toString(),
       time: currentTime,
-      totalCarbs: totalCarbsOnPlate.toFixed(0),
-      dose: finalDoseString
-    }, ...history]);
+      totalCarbs: totalCarbsOnPlate.toFixed(1),
+      dose: finalDoseString,
+      mealDose: mealDose.toFixed(1),
+      correctionDose: correctionDose.toFixed(1)
+    }, ...prevHistory]);
   };
 
   return (
@@ -173,6 +322,11 @@ export default function App() {
               <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#007AFF' }}>{totalCarbsOnPlate}g</Text>
             </View>
           )}
+          {mealPlate.length > 0 && (
+            <TouchableOpacity style={{ marginTop: 12, alignSelf: 'flex-end' }} onPress={clearPlate}>
+              <Text style={{ color: '#dc3545', fontWeight: '600', fontSize: 13 }}>Clear Plate</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={{ marginBottom: 15 }}>
@@ -186,14 +340,94 @@ export default function App() {
           />
         </View>
 
+        <View style={{ marginBottom: 15 }}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#495057', marginBottom: 6 }}>Dose Rounding Step:</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              style={{ backgroundColor: roundingStep === '0.5' ? '#007AFF' : '#fff', borderColor: '#dee2e6', borderWidth: 1, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 14 }}
+              onPress={() => setRoundingStep('0.5')}
+            >
+              <Text style={{ color: roundingStep === '0.5' ? '#fff' : '#212529', fontWeight: '600' }}>0.5 Unit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ backgroundColor: roundingStep === '1' ? '#007AFF' : '#fff', borderColor: '#dee2e6', borderWidth: 1, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 14 }}
+              onPress={() => setRoundingStep('1')}
+            >
+              <Text style={{ color: roundingStep === '1' ? '#fff' : '#212529', fontWeight: '600' }}>1.0 Unit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 15 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Optional BG Correction Dose</Text>
+          <Text style={{ fontSize: 12, color: '#6c757d', marginBottom: 8 }}>
+            Enter all fields below only when you need a correction bolus.
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+            <TouchableOpacity
+              style={{ backgroundColor: bgUnit === 'mmol' ? '#007AFF' : '#fff', borderColor: '#dee2e6', borderWidth: 1, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 }}
+              onPress={() => setBgUnit('mmol')}
+            >
+              <Text style={{ color: bgUnit === 'mmol' ? '#fff' : '#212529', fontWeight: '600' }}>mmol/L</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ backgroundColor: bgUnit === 'mgdl' ? '#007AFF' : '#fff', borderColor: '#dee2e6', borderWidth: 1, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 }}
+              onPress={() => setBgUnit('mgdl')}
+            >
+              <Text style={{ color: bgUnit === 'mgdl' ? '#fff' : '#212529', fontWeight: '600' }}>mg/dL</Text>
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 8 }}
+            keyboardType="numeric"
+            placeholder={`Current BG (${BG_LIMITS[bgUnit].unitLabel})`}
+            value={currentBg}
+            onChangeText={setCurrentBg}
+          />
+          <TextInput
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 8 }}
+            keyboardType="numeric"
+            placeholder={`Target BG (${BG_LIMITS[bgUnit].unitLabel})`}
+            value={targetBg}
+            onChangeText={setTargetBg}
+          />
+          <TextInput
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6' }}
+            keyboardType="numeric"
+            placeholder={`Correction factor (${BG_LIMITS[bgUnit].unitLabel} per 1 unit)`}
+            value={correctionFactor}
+            onChangeText={setCorrectionFactor}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={{ backgroundColor: '#6f42c1', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 15 }}
+          onPress={savePersonalSettings}
+        >
+          <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>Save My Personal Settings</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={{ backgroundColor: '#28a745', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 5 }} onPress={calculateTotalMealDose}>
           <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Calculate Total Meal Dose</Text>
         </TouchableOpacity>
 
         {calculatedDose && (
           <View style={{ marginTop: 20, padding: 15, backgroundColor: '#e8f0fe', borderRadius: 8, alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, color: '#185abc' }}>Suggested Combined Dose:</Text>
-            <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#185abc', marginTop: 2 }}>{calculatedDose}</Text>
+            <Text style={{ fontSize: 14, color: '#185abc' }}>Suggested Combined Dose (rounded to {calculatedDose.step}):</Text>
+            <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#185abc', marginTop: 2 }}>{calculatedDose.roundedDose} Units</Text>
+            <Text style={{ fontSize: 12, color: '#495057', marginTop: 4 }}>Meal dose: {calculatedDose.mealDose} Units</Text>
+            <Text style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>Correction dose: {calculatedDose.correctionDose} Units</Text>
+            <Text style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>Exact total: {calculatedDose.exactDose} Units</Text>
+            {calculatedDose.correctionUsed && calculatedDose.belowOrAtTarget && (
+              <Text style={{ fontSize: 12, color: '#b26a00', marginTop: 6, textAlign: 'center' }}>
+                Current BG is at or below target. Correction dose was set to 0.
+              </Text>
+            )}
+            {parseFloat(calculatedDose.roundedDose) >= HIGH_DOSE_WARNING_UNITS && (
+              <Text style={{ fontSize: 12, color: '#dc3545', marginTop: 6, textAlign: 'center' }}>
+                High-dose result detected. Double-check carbs and ratio before dosing.
+              </Text>
+            )}
           </View>
         )}
 
@@ -211,6 +445,9 @@ export default function App() {
                   <Text style={{ fontSize: 13, color: '#495057' }}>{entry.totalCarbs}g carbs</Text>
                 </View>
                 <Text style={{ fontSize: 13, color: '#185abc' }}>Dose: {entry.dose}</Text>
+                <Text style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>
+                  Meal {entry.mealDose}u + Correction {entry.correctionDose}u
+                </Text>
               </View>
             ))
           )}
