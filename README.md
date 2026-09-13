@@ -1,54 +1,105 @@
-Carb Counter App
-A React Native + Expo app that helps calculate a meal insulin dose from total carbohydrates.
+cat > README.md <<'EOF'
+# Carb Counter App
 
-What the app does
-Lets you add multiple foods from a built-in food library (40+ options)
-Supports manual custom carb entry for foods not in the library
-Builds a "current plate" basket and totals carbs automatically
-Calculates suggested insulin dose using your insulin-to-carb ratio
-Shows exact dose plus rounded dose selection (0.5 or 1.0 unit steps)
-Includes optional BG correction dose inputs (mmol/L or mg/dL)
-Breaks down meal dose and correction dose in results/history
-Flags high calculated doses to prompt a manual double-check
-Includes quick clear-plate action
-Saves personal defaults (ratio, rounding, BG unit, target BG, correction factor)
-Stores a simple in-app history log of dose calculations for the current session
-History entries include the foods selected and allow deleting individual entries
-Provides in-app Help and BG explanation modals for key terms
-Tech stack
-Expo ~57.0.22
-React 19.2.3
-React Native 0.86.3
-@react-native-picker/picker
-lucide-react-native
-@react-native-async-storage/async-storage (for saving personal settings)
-Getting started
-Install dependencies:
-Start the Expo development server:
-Run on your preferred platform:
-Note: If you plan to use web, react-dom and react-native-web must be installed for Expo web support.
+A lightweight React Native + Expo app to calculate insulin doses from carbohydrate totals. Designed for quick meal bolus calculations with optional BG (blood glucose) correction and saved personal settings.
 
-How to use
-Open the food library and add one or more foods to your meal plate.
-Optionally add manual carbs with the custom input.
-Enter your insulin-to-carb ratio (g/unit), for example 10.
-Choose a dose rounding step (0.5 or 1.0 units).
-(Optional) For a correction bolus: enter Current BG, Target BG, and Correction Factor (use the same unit as your meter — mmol/L or mg/dL).
-Optionally save these values as your personal defaults using "Save My Personal Settings".
-Tap Calculate Total Meal Dose.
-The app shows:
-Meal dose (covers carbs)
-Correction dose (if inputs provided and current BG > target)
-Exact total and rounded suggested dose
-Review the session history (logbook). Each entry lists the selected foods and allows deleting that entry.
-Tap the in-app Help button or the "?" next to the BG section for explanations of the terms.
-Safety & notes
-This app is a calculation aid only. Always follow your healthcare professional’s guidance before dosing.
-If calculated dose is high (>= 20 units), the app shows a warning to double-check entries.
-If current BG is at or below the target, correction dose is set to 0 to avoid hypoglycaemia risk.
-Deleting a history entry removes it from the current session only. If you add persistent history storage later, update the delete behavior accordingly.
-Scripts
-npm run start – start Expo
-npm run ios – open in iOS simulator/device
-npm run android – open in Android emulator/device
-npm run web – run in browser
+## Table of contents
+- Quick summary
+- Features
+- Tech stack
+- Install & run
+- Quick usage
+- Example calculation
+- Safety & disclaimers
+- Persistence & history
+- Troubleshooting
+- Development
+- Recent changelog
+
+## Quick summary
+Multi-select food library (40+ items) + manual carbs, calculates meal bolus with optional BG correction, shows exact and rounded doses, stores session history (with foods) and supports saving personal defaults.
+
+## Features
+- Add foods from the built-in library or enter custom carbs
+- Multi-item "plate" with automatic total carbs
+- Meal dose calculation using your insulin-to-carb ratio (g per unit)
+- Optional BG correction bolus (supports mmol/L and mg/dL)
+- Shows exact dose + rounded suggested dose (0.5 or 1.0 unit steps)
+- Session logbook that stores selected foods + dose breakdown
+- Delete individual history entries
+- Save/load personal defaults (ratio, rounding step, BG unit, target BG, correction factor)
+- In-app Help and BG explanation modals
+- High-dose warning when suggested dose >= 20 units
+- Quick clear-plate action
+
+## Tech stack
+- Expo SDK ~57.0.22
+- React 19.2.3
+- React Native 0.86.3
+- @react-native-async-storage/async-storage (settings persistence)
+- lucide-react-native, @react-native-picker/picker
+
+## Install & run (development)
+1. Install dependencies:
+   npm install
+
+2. Start Expo:
+   npm run start
+
+3. Run on your preferred platform:
+   npm run ios
+   npm run android
+   npm run web
+
+Note: For web support install react-dom and react-native-web compatible with your Expo SDK:
+npx expo install react-dom react-native-web
+
+## Quick usage
+1. Add foods (open the library) or enter a custom carb value and tap "Add Custom".  
+2. Enter your insulin-to-carb ratio (g/unit), e.g., `10` (1U per 10 g).  
+3. Choose dose rounding step: 0.5 or 1.0 units.  
+4. (Optional) For correction bolus:
+   - Select BG unit (mmol/L or mg/dL),
+   - Enter Current BG, Target BG, and Correction Factor (how much BG falls per 1U).
+   - If Current BG ≤ Target BG, correction dose is set to 0.
+5. (Optional) Tap "Save My Personal Settings" to persist defaults for next sessions.  
+6. Tap "Calculate Total Meal Dose" to see meal dose, correction dose, exact total and rounded suggestion.  
+7. Check the session history: each entry includes foods, carb totals and dose breakdown; you can delete entries.
+
+## Example calculation
+- Foods: Bagel (48 g) + Orange (12 g) → Total carbs = 60 g  
+- Ratio = 10 g/U → Meal dose = 60 / 10 = 6.0 U  
+- Correction example: Current 12.0 mmol/L, Target 6.0 mmol/L, Factor 2 mmol/L per U → Correction = (12 − 6) / 2 = 3.0 U  
+- Exact total = 9.0 U → Rounded suggestion (0.5U step) = 9.0 U
+
+## Safety & disclaimers
+- This app is a calculation aid only — it is NOT medical advice.
+- Always confirm dosing with your healthcare professional before administering insulin.
+- Correction dose is disabled when Current BG ≤ Target to reduce hypoglycaemia risk.
+- High calculated doses (>= 20 units) show a warning — double-check your inputs before dosing.
+
+## Persistence & history
+- Personal settings (ratio, rounding, BG unit, target BG, correction factor) are saved locally using AsyncStorage and auto-loaded on start.
+- Session history is kept in-memory for the current session. Deleting a history entry removes it from the session only. If persistent history is required later, it can be stored and exported as CSV.
+
+## Troubleshooting
+- Web build error: ensure web deps installed:
+  npx expo install react-dom react-native-web
+- If UI or logic changes behave unexpectedly: restart Expo and clear the Metro cache:
+  expo start -c
+
+## Development & contribution
+- Repo: github.com/TopG85/carb-counter-app
+- PRs and issues welcome — include platform, Expo SDK, and reproduction steps.
+
+## Recent changelog
+- Added BG correction bolus calculation and validation
+- Added saved personal settings (AsyncStorage)
+- History entries now include the foods logged
+- Delete-per-entry button in the logbook
+- Help and BG explanation modals added
+- Dose rounding options and high-dose warning
+
+License
+- (Add your preferred license and attribution here — e.g., MIT)
+EOF
