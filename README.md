@@ -101,4 +101,3 @@ npx expo install react-dom react-native-web
 
 License
 - (Add your preferred license and attribution here — e.g., MIT)
-EOF
