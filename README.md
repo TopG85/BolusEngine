@@ -1,4 +1,3 @@
-cat > README.md <<'EOF'
 # Carb Counter App
 
 A lightweight React Native + Expo app to calculate insulin doses from carbohydrate totals. Designed for quick meal bolus calculations with optional BG (blood glucose) correction and saved personal settings.
