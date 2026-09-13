@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, ScrollView, Keyboard, Modal, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FOOD_DATABASE = {
@@ -37,7 +37,7 @@ const FOOD_DATABASE = {
   pear: { name: '🍐 Pear (1 Medium)', carbs: 15 },
   orange: { name: '🍊 Orange (1 Medium)', carbs: 12 },
 
-  // Vegetables 
+  // Vegetables
   carrot: { name: '🥕 Carrot (1 Medium)', carbs: 5 },
   broccoli: { name: '🥦 Broccoli (100g)', carbs: 7 },
 
@@ -76,6 +76,15 @@ export default function App() {
   const [targetBg, setTargetBg] = useState('');
   const [correctionFactor, setCorrectionFactor] = useState('');
   const [calculatedDose, setCalculatedDose] = useState(null);
+
+  // help modals
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
+  const [bgHelpVisible, setBgHelpVisible] = useState(false);
+
+  // remove a single history entry
+  const removeHistoryEntry = (id) => {
+    setHistory((prev) => prev.filter((e) => e.id !== id));
+  };
 
   useEffect(() => {
     const loadSavedSettings = async () => {
@@ -246,20 +255,29 @@ export default function App() {
 
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+    // store the foods list for this entry (copy values)
+    const entryFoods = mealPlate.map((item) => ({ name: item.name, carbs: item.carbs }));
+
     setHistory((prevHistory) => [{
       id: Date.now().toString(),
       time: currentTime,
       totalCarbs: totalCarbsOnPlate.toFixed(1),
       dose: finalDoseString,
       mealDose: mealDose.toFixed(1),
-      correctionDose: correctionDose.toFixed(1)
+      correctionDose: correctionDose.toFixed(1),
+      foods: entryFoods
     }, ...prevHistory]);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <View style={{ backgroundColor: '#fff', paddingTop: 50, paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#dee2e6', alignItems: 'center' }}>
-        <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' }}>Multi-Select Carb Counter</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' }}>Multi-Select Carb Counter</Text>
+          <TouchableOpacity onPress={() => setHelpModalVisible(true)} style={{ padding: 6 }}>
+            <Text style={{ color: '#6c757d', fontWeight: '700' }}>Help</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingTop: 15 }} keyboardShouldPersistTaps="handled">
@@ -359,7 +377,13 @@ export default function App() {
         </View>
 
         <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 15 }}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Optional BG Correction Dose</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529' }}>Optional BG Correction Dose</Text>
+            <TouchableOpacity onPress={() => setBgHelpVisible(true)} style={{ padding: 6 }}>
+              <Text style={{ color: '#007AFF', fontWeight: '700' }}>?</Text>
+            </TouchableOpacity>
+          </View>
+
           <Text style={{ fontSize: 12, color: '#6c757d', marginBottom: 8 }}>
             Enter all fields below only when you need a correction bolus.
           </Text>
@@ -448,11 +472,56 @@ export default function App() {
                 <Text style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>
                   Meal {entry.mealDose}u + Correction {entry.correctionDose}u
                 </Text>
+
+                {entry.foods && entry.foods.length > 0 && (
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#212529' }}>Foods:</Text>
+                    {entry.foods.map((f, i) => (
+                      <Text key={i} style={{ fontSize: 12, color: '#495057' }}>• {f.name} — {f.carbs}g</Text>
+                    ))}
+                  </View>
+                )}
+
+                <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
+                  <TouchableOpacity onPress={() => removeHistoryEntry(entry.id)} style={{ paddingVertical: 6, paddingHorizontal: 10 }}>
+                    <Text style={{ color: '#dc3545', fontWeight: '700' }}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))
           )}
         </View>
       </ScrollView>
+
+      {/* General Help modal */}
+      <Modal visible={helpModalVisible} animationType="slide" transparent={true}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ width: '90%', backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
+            <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 8 }}>Help — Terms</Text>
+            <Text style={{ marginBottom: 6 }}>BG = Blood Glucose level (your current blood sugar reading).</Text>
+            <Text style={{ marginBottom: 6 }}>Insulin-to-Carb Ratio = how many grams of carbs are covered by 1 unit of insulin (e.g., 10 means 1U per 10g carbs).</Text>
+            <Text style={{ marginBottom: 6 }}>Correction factor = how much your BG drops for 1 unit of insulin (e.g., 2 mmol/L per unit or 50 mg/dL per unit).</Text>
+            <Text style={{ marginBottom: 6 }}>Meal dose = insulin needed to cover carbs. Correction dose = insulin to correct high BG.</Text>
+            <Pressable onPress={() => setHelpModalVisible(false)} style={{ marginTop: 12, alignSelf: 'flex-end' }}>
+              <Text style={{ color: '#007AFF', fontWeight: '700' }}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* BG Help modal */}
+      <Modal visible={bgHelpVisible} animationType="fade" transparent={true}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ width: '90%', backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
+            <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 8 }}>What does BG mean?</Text>
+            <Text style={{ marginBottom: 6 }}>BG stands for Blood Glucose — your current blood sugar measurement. Use the same units your meter shows (mmol/L or mg/dL).</Text>
+            <Text style={{ marginBottom: 6 }}>If your current BG is at or below your chosen target, the correction dose will be set to zero to avoid hypoglycaemia risk.</Text>
+            <Pressable onPress={() => setBgHelpVisible(false)} style={{ marginTop: 12, alignSelf: 'flex-end' }}>
+              <Text style={{ color: '#007AFF', fontWeight: '700' }}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
-} 
+}
