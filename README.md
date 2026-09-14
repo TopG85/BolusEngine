@@ -26,6 +26,7 @@ It is designed for:
 - Calculate meal-only, correction-only, or combined doses
 - Enter insulin-to-carb ratio in g per unit
 - Supports mmol/L and mg/dL BG units
+- Inline correction-factor help text under BG correction inputs
 - Exact dose and rounded suggestion display
 - 0.5 unit and 1.0 unit rounding options
 - Save personal defaults with AsyncStorage
@@ -93,6 +94,16 @@ If web support is needed:
 npx expo install react-dom react-native-web
 ```
 
+### Web build output
+
+You can generate a static web build with:
+
+```bash
+npx expo export --platform web
+```
+
+This creates a `dist/` folder that can be hosted on static hosting providers (for example, GitHub Pages).
+
 ## Project structure
 
 - `App.js` — main app logic and UI
@@ -128,6 +139,7 @@ https://github.com/TopG85/carb-counter-app
 - Added stronger validation for meal and correction calculations
 - Added saved personal defaults and history
 - Improved overall app clarity and help text
+- Enabled Expo web support with `react-dom` and `react-native-web`
 
 ## License
 
