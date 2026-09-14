@@ -60,6 +60,7 @@ const BG_LIMITS = {
 };
 const SETTINGS_STORAGE_KEY = 'carb-counter-settings-v1';
 const CUSTOM_LIBRARY_STORAGE_KEY = 'carb-counter-custom-library-v1';
+const HIDDEN_LIBRARY_ITEMS_STORAGE_KEY = 'carb-counter-hidden-library-items-v1';
 
 const roundToStep = (value, step) => Math.round(value / step) * step;
 const isValidRoundingStep = (value) => value === '0.5' || value === '1';
@@ -81,6 +82,7 @@ export default function App() {
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [bgHelpVisible, setBgHelpVisible] = useState(false);
   const [customLibraryFoods, setCustomLibraryFoods] = useState([]);
+  const [hiddenLibraryItemIds, setHiddenLibraryItemIds] = useState([]);
   const [newLibraryFoodName, setNewLibraryFoodName] = useState('');
   const [newLibraryFoodCarbs, setNewLibraryFoodCarbs] = useState('');
 
@@ -88,14 +90,30 @@ export default function App() {
     setHistory((prev) => prev.filter((e) => e.id !== id));
   };
 
-  const removeFoodFromLibrary = async (foodId) => {
-    const updatedFoods = customLibraryFoods.filter((food) => food.id !== foodId);
-    setCustomLibraryFoods(updatedFoods);
+  const removeFoodFromLibrary = async (foodId, isCustomFood = true) => {
+    const updatedHiddenList = Array.from(new Set([...hiddenLibraryItemIds, foodId]));
+    setHiddenLibraryItemIds(updatedHiddenList);
+
+    if (isCustomFood) {
+      const updatedFoods = customLibraryFoods.filter((food) => food.id !== foodId);
+      setCustomLibraryFoods(updatedFoods);
+
+      try {
+        await Promise.all([
+          AsyncStorage.setItem(CUSTOM_LIBRARY_STORAGE_KEY, JSON.stringify(updatedFoods)),
+          AsyncStorage.setItem(HIDDEN_LIBRARY_ITEMS_STORAGE_KEY, JSON.stringify(updatedHiddenList))
+        ]);
+      } catch (error) {
+        console.error('Failed to remove saved custom food', error);
+        alert('Could not remove that food from the library. Please try again.');
+      }
+      return;
+    }
 
     try {
-      await AsyncStorage.setItem(CUSTOM_LIBRARY_STORAGE_KEY, JSON.stringify(updatedFoods));
+      await AsyncStorage.setItem(HIDDEN_LIBRARY_ITEMS_STORAGE_KEY, JSON.stringify(updatedHiddenList));
     } catch (error) {
-      console.error('Failed to remove saved custom food', error);
+      console.error('Failed to hide library food', error);
       alert('Could not remove that food from the library. Please try again.');
     }
   };
@@ -103,9 +121,10 @@ export default function App() {
   useEffect(() => {
     const loadSavedData = async () => {
       try {
-        const [rawSettings, rawCustomLibrary] = await Promise.all([
+        const [rawSettings, rawCustomLibrary, rawHiddenLibraryItems] = await Promise.all([
           AsyncStorage.getItem(SETTINGS_STORAGE_KEY),
-          AsyncStorage.getItem(CUSTOM_LIBRARY_STORAGE_KEY)
+          AsyncStorage.getItem(CUSTOM_LIBRARY_STORAGE_KEY),
+          AsyncStorage.getItem(HIDDEN_LIBRARY_ITEMS_STORAGE_KEY)
         ]);
 
         if (rawSettings) {
@@ -129,6 +148,14 @@ export default function App() {
                 !Number.isNaN(item.carbs)
             );
             setCustomLibraryFoods(validFoods);
+          }
+        }
+
+        if (rawHiddenLibraryItems) {
+          const parsedHidden = JSON.parse(rawHiddenLibraryItems);
+          if (Array.isArray(parsedHidden)) {
+            const validHidden = parsedHidden.filter((item) => typeof item === 'string');
+            setHiddenLibraryItemIds(validHidden);
           }
         }
       } catch (error) {
@@ -180,7 +207,8 @@ export default function App() {
 
     const allExistingNames = [
       ...Object.values(FOOD_DATABASE).map((food) => food.name.toLowerCase()),
-      ...customLibraryFoods.map((food) => food.name.toLowerCase())
+      ...customLibraryFoods.map((food) => food.name.toLowerCase()),
+      ...customLibraryFoods.filter((food) => hiddenLibraryItemIds.includes(food.id)).map((food) => food.name.toLowerCase())
     ];
 
     if (allExistingNames.includes(trimmedName.toLowerCase())) {
@@ -344,7 +372,8 @@ export default function App() {
     carbs: FOOD_DATABASE[key].carbs,
     isCustom: false
   }));
-  const fullLibraryFoods = [...baseLibraryFoods, ...customLibraryFoods.map((food) => ({ ...food, isCustom: true }))];
+  const fullLibraryFoods = [...baseLibraryFoods, ...customLibraryFoods.map((food) => ({ ...food, isCustom: true }))]
+    .filter((food) => !hiddenLibraryItemIds.includes(food.id));
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
@@ -378,21 +407,19 @@ export default function App() {
                     <Text style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 13 }}>[ADD]</Text>
                   </TouchableOpacity>
 
-                  {foodItem.isCustom && (
-                    <TouchableOpacity
-                      onPress={() => removeFoodFromLibrary(foodItem.id)}
-                      style={{
-                        backgroundColor: '#dc3545',
-                        borderRadius: 8,
-                        paddingHorizontal: 10,
-                        paddingVertical: 8,
-                        minWidth: 76,
-                        alignItems: 'center'
-                      }}
-                    >
-                      <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12 }}>🗑 Delete</Text>
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity
+                    onPress={() => removeFoodFromLibrary(foodItem.id, foodItem.isCustom)}
+                    style={{
+                      backgroundColor: '#dc3545',
+                      borderRadius: 8,
+                      paddingHorizontal: 10,
+                      paddingVertical: 8,
+                      minWidth: 76,
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12 }}>🗑 Delete</Text>
+                  </TouchableOpacity>
                 </View>
               ))}
             </ScrollView>
