@@ -61,6 +61,10 @@ const BG_LIMITS = {
 const SETTINGS_STORAGE_KEY = 'carb-counter-settings-v1';
 const CUSTOM_LIBRARY_STORAGE_KEY = 'carb-counter-custom-library-v1';
 const HIDDEN_LIBRARY_ITEMS_STORAGE_KEY = 'carb-counter-hidden-library-items-v1';
+const getCorrectionFactorHelpText = (bgUnit) =>
+  bgUnit === 'mmol'
+    ? 'Correction factor = how much 1 unit lowers your BG. Example: 2 mmol/L per 1 unit means 1 unit should lower BG by about 2 mmol/L.'
+    : 'Correction factor = how much 1 unit lowers your BG. Example: 50 mg/dL per 1 unit means 1 unit should lower BG by about 50 mg/dL.';
 
 const roundToStep = (value, step) => Math.round(value / step) * step;
 const isValidRoundingStep = (value) => value === '0.5' || value === '1';
@@ -539,6 +543,9 @@ export default function App() {
             value={correctionFactor}
             onChangeText={setCorrectionFactor}
           />
+          <Text style={{ fontSize: 11, color: '#6c757d', marginTop: 8, lineHeight: 16 }}>
+            {getCorrectionFactorHelpText(bgUnit)}
+          </Text>
         </View>
 
         <TouchableOpacity
