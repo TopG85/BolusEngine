@@ -20,7 +20,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "publicPath": "./"
+      "baseUrl": "/carb-counter-app"
     },
     "plugins": [
       "expo-status-bar"
