@@ -409,6 +409,25 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
+        <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 15 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>My Saved Custom Foods</Text>
+          {customLibraryFoods.length === 0 ? (
+            <Text style={{ fontStyle: 'italic', color: '#868e96', fontSize: 13, marginBottom: 4 }}>No custom foods saved yet.</Text>
+          ) : (
+            customLibraryFoods.map((food) => (
+              <View key={food.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f8f9fa' }}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Text style={{ fontSize: 14, color: '#212529' }}>{food.name.replace(/^🆕\s*/, '')}</Text>
+                  <Text style={{ fontSize: 12, color: '#6c757d' }}>{food.carbs}g carbs</Text>
+                </View>
+                <TouchableOpacity onPress={() => removeFoodFromLibrary(food.id)} style={{ backgroundColor: '#ffe3e3', borderWidth: 1, borderColor: '#f5c2c7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 }}>
+                  <Text style={{ color: '#b02a37', fontWeight: '700', fontSize: 12 }}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </View>
+
         <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 20 }}>
           <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Quick Custom Food for This Meal</Text>
           <TextInput

@@ -22,8 +22,8 @@ It is designed for:
 
 - Built-in food library with 40+ common items
 - Add your own foods to the library
-- Delete custom library foods you no longer need from the food list
-- Clear red delete buttons for saved custom foods
+- Delete custom library foods from a dedicated saved-food list
+- Clear red delete buttons for saved custom foods in both the library and the custom food list
 - Custom one-off meal entry for quick carb-only additions
 - Total carb calculation across multiple foods
 - Meal-only, correction-only, and combined dose calculations
