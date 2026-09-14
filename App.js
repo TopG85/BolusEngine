@@ -616,8 +616,9 @@ export default function App() {
             <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 8 }}>Help — Terms</Text>
             <Text style={{ marginBottom: 6 }}>BG = Blood Glucose level (your current blood sugar reading).</Text>
             <Text style={{ marginBottom: 6 }}>Insulin-to-Carb Ratio = how many grams of carbs are covered by 1 unit of insulin (e.g., 10 means 1U per 10g carbs).</Text>
-            <Text style={{ marginBottom: 6 }}>Correction factor = how much your BG drops for 1 unit of insulin (e.g., 2 mmol/L per unit or 50 mg/dL per unit).</Text>
-            <Text style={{ marginBottom: 6 }}>Meal dose = insulin needed to cover carbs. Correction dose = insulin to correct high BG.</Text>
+            <Text style={{ marginBottom: 6 }}>Correction factor = how much 1 unit of insulin lowers your blood glucose. Example: a factor of 2 mmol/L per 1 unit means 1 unit should reduce your BG by about 2 mmol/L (or about 35 mg/dL if using mg/dL).</Text>
+            <Text style={{ marginBottom: 6 }}>Meal dose = insulin needed to cover carbs. Correction dose = insulin to bring high BG back toward target.</Text>
+            <Text style={{ marginBottom: 6 }}>Example: if your BG is 12 mmol/L and target is 6 mmol/L, and your factor is 2 mmol/L per 1 unit, the correction is (12 - 6) / 2 = 3 units.</Text>
             <Pressable onPress={() => setHelpModalVisible(false)} style={{ marginTop: 12, alignSelf: 'flex-end' }}>
               <Text style={{ color: '#007AFF', fontWeight: '700' }}>Close</Text>
             </Pressable>
