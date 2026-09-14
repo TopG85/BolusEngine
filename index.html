@@ -1,34 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Select Carb Counter</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .header { background-color: #fff; padding: 20px; border-bottom: 1px solid #dee2e6; text-align: center; }
-        .title { margin: 0; font-size: 20px; font-weight: bold; color: #1a1a1a; }
-        .container { max-width: 500px; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
-        .label { font-size: 14px; font-weight: 600; color: #495057; margin-bottom: 6px; display: block; }
-        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dee2e6; background-color: #fff; font-size: 16px; box-sizing: border-box; margin-bottom: 15px; }
-        .custom-row { display: flex; gap: 8px; margin-bottom: 20px; }
-        .custom-row input { margin-bottom: 0; }
-        .btn-add { background-color: #007AFF; color: #fff; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-        .plate-container { background-color: #fff; padding: 15px; border-radius: 10px; border: 1px solid #dee2e6; margin-bottom: 20px; }
-        .plate-title { font-size: 15px; font-weight: bold; color: #212529; margin: 0 0 10px 0; }
-        .plate-card { display: flex; justify-content: 'space-between'; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f8f9fa; }
-        .btn-remove { color: #dc3545; background: none; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 2px solid #dee2e6; font-weight: bold; }
-        .btn-calc { width: 100%; background-color: #28a745; color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .result-box { margin-top: 20px; padding: 15px; background-color: #e8f0fe; border-radius: 8px; text-align: center; color: #185abc; }
-        .result-val { font-size: 26px; font-weight: bold; margin-top: 2px; }
-        .log-card { background-color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e9ecef; }
-        .log-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .custom-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .custom-row input {
+            margin-bottom: 0;
+        }
+
+        .btn-add {
+            background-color: #007AFF;
+            color: #fff;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .plate-container {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .plate-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #212529;
+            margin: 0 0 10px 0;
+        }
+
+        .plate-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .btn-remove {
+            color: #dc3545;
+            background: none;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid #dee2e6;
+            font-weight: bold;
+        }
+
+        .btn-calc {
+            width: 100%;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .result-box {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #e8f0fe;
+            border-radius: 8px;
+            text-align: center;
+            color: #185abc;
+            margin-bottom: 20px;
+        }
+
+        .result-val {
+            font-size: 26px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .log-card {
+            background-color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .log-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .warning-box {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            borderRadius: 8px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="header"><div class="title">Multi-Select Carb Counter</div></div>
+    <div class="header">
+        <div class="title">Multi-Select Carb Counter</div>
+    </div>
 
     <div class="container">
         <label class="label">1. Choose Food From Library:</label>
@@ -72,9 +234,28 @@
         <label class="label">Enter Insulin-to-Carb Ratio (g/Unit):</label>
         <input type="number" id="ratio" placeholder="e.g., 10">
 
+        <!-- ADVANCED INSULIN CORRECTION DOSE REGISTRY MODULE -->
+        <div class="checkbox-group">
+            <input type="checkbox" id="enableCorrection" onchange="toggleCorrectionFields()">
+            <label for="enableCorrection" class="label" style="margin-bottom:0; cursor:pointer;">Include Blood Glucose
+                (BG) Correction Doses</label>
+        </div>
+
+        <div id="correctionFields" style="display: none;">
+            <label class="label">Current Blood Glucose (mmol/L):</label>
+            <input type="number" step="0.1" id="currentBG" placeholder="e.g., 9.5">
+
+            <label class="label">Target Blood Glucose (mmol/L):</label>
+            <input type="number" step="0.1" id="targetBG" placeholder="e.g., 5.5">
+
+            <label class="label">Correction Factor / Sensitivity (mmol/L per Unit):</label>
+            <input type="number" step="0.1" id="correctionFactor" placeholder="e.g., 2.0">
+        </div>
+
         <button class="btn-calc" onclick="calculateDose()">Calculate Total Meal Dose</button>
 
         <div id="resultContainer"></div>
+        <div id="warningContainer"></div>
 
         <div class="label" style="margin-top: 25px;">Today's Historical Logbook:</div>
         <div id="logbook"></div>
@@ -83,6 +264,11 @@
     <script>
         let plate = [];
         let historyLog = [];
+
+        function toggleCorrectionFields() {
+            let checkbox = document.getElementById('enableCorrection');
+            document.getElementById('correctionFields').style.display = checkbox.checked ? 'block' : 'none';
+        }
 
         function selectFoodItem() {
             let select = document.getElementById('foodSelect');
@@ -127,32 +313,27 @@
 
         function calculateDose() {
             let ratio = parseFloat(document.getElementById('ratio').value);
-            if (plate.length === 0) return alert('Your plate is empty!');
-            if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid ratio');
-
             let totalCarbs = plate.reduce((sum, item) => sum + item.carbs, 0);
-            let dose = (totalCarbs / ratio).toFixed(1);
 
-            document.getElementById('resultContainer').innerHTML = `<div class="result-box"><div class="result-label">Suggested Combined Dose:</div><div class="result-val">${dose} Units</div></div>`;
+            if (plate.length === 0) return alert('Your plate basket is empty! Select items from the library first.');
+            if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid Insulin-to-Carb ratio');
 
-            let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            historyLog.unshift({ time: time, carbs: totalCarbs, dose: dose });
-            renderLog();
-        }
+            // 1. Meal Component Calculation
+            let mealDose = totalCarbs / ratio;
+            let correctionDose = 0;
 
-        function renderLog() {
-            let log = document.getElementById('logbook');
-            log.innerHTML = '';
-            if (historyLog.length === 0) {
-                log.innerHTML = '<div style="font-style: italic; color: #adb5bd; text-align: center; margin-top: 10px;">No entries logged yet.</div>';
-            } else {
-                historyLog.forEach(entry => {
-                    log.innerHTML += `<div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${entry.time}</span></div><div style="font-size:13px; color:#495057;">${entry.carbs}g combined carbs total → <span style="font-weight:bold; color:#28a745;">${entry.dose} Units</span></div></div>`;
-                });
-            }
-        }
-        renderPlate();
-        renderLog();
-    </script>
-</body>
-</html>
+            // 2. Correction Component Calculation (if toggled active)
+            let includeCorrection = document.getElementById('enableCorrection').checked;
+            if (includeCorrection) {
+                let currentBG = parseFloat(document.getElementById('currentBG').value);
+                let targetBG = parseFloat(document.getElementById('targetBG').value);
+                let factor = parseFloat(document.getElementById('correctionFactor').value);
+
+                if (isNaN(currentBG) || isNaN(targetBG) || isNaN(factor) || factor <= 0) {
+                    return alert('Please enter valid numbers for the correction parameters.');
+                }
+
+                if (currentBG > targetBG) {
+                    correctionDose = (currentBG - targetBG) / factor;
+                }
+            } let exactTotal = mealDose + correctionDose; let roundedDose = exactTotal.toFixed(1);// Display suggested units paneldocument.getElementById('resultContainer').innerHTML =  <div class="result-box"> <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div> <div style="font-size:14px; margin-top:4px;">Calculated Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div> <div class="result-val">${roundedDose} Units Suggestion</div> </div>;// Display high-dose safety alert barrier warning if applicablelet warningBox = document.getElementById('warningContainer');warningBox.innerHTML = exactTotal >= 12.0 ? <div class="warning-box">🚨 Safety Alert: High-Dose Threshold Crossed! Verify total parameters carefully.</div> : '';let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });historyLog.unshift({ time: time, carbs: totalCarbs, dose: roundedDose });renderLog();}function renderLog() {let log = document.getElementById('logbook');log.innerHTML = '';if (historyLog.length === 0) {log.innerHTML = 'No entries logged yet today.';} else {historyLog.forEach(entry => {log.innerHTML += <div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${entry.time}</span></div><div style="font-size:13px; color:#495057;">${entry.carbs}g combined carbs total → <span style="font-weight:bold; color:#28a745;">${entry.dose} Units</span></div></div>;});}}renderPlate();renderLog();
