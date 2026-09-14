@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Select Carb Counter</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .header { background-color: #fff; padding: 20px; border-bottom: 1px solid #dee2e6; text-align: center; }
+        .title { margin: 0; font-size: 20px; font-weight: bold; color: #1a1a1a; }
+        .container { max-width: 500px; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
+        .label { font-size: 14px; font-weight: 600; color: #495057; margin-bottom: 6px; display: block; }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dee2e6; background-color: #fff; font-size: 16px; box-sizing: border-box; margin-bottom: 15px; }
+        .custom-row { display: flex; gap: 8px; margin-bottom: 20px; }
+        .custom-row input { margin-bottom: 0; }
+        .btn-add { background-color: #007AFF; color: #fff; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .plate-container { background-color: #fff; padding: 15px; border-radius: 10px; border: 1px solid #dee2e6; margin-bottom: 20px; }
+        .plate-title { font-size: 15px; font-weight: bold; color: #212529; margin: 0 0 10px 0; }
+        .plate-card { display: flex; justify-content: 'space-between'; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f8f9fa; }
+        .btn-remove { color: #dc3545; background: none; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 2px solid #dee2e6; font-weight: bold; }
+        .btn-calc { width: 100%; background-color: #28a745; color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .result-box { margin-top: 20px; padding: 15px; background-color: #e8f0fe; border-radius: 8px; text-align: center; color: #185abc; }
+        .result-val { font-size: 26px; font-weight: bold; margin-top: 2px; }
+        .log-card { background-color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e9ecef; }
+        .log-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header"><div class="title">Multi-Select Carb Counter</div></div>
+
+    <div class="container">
+        <label class="label">1. Choose Food From Library:</label>
+        <select id="foodSelect" onchange="selectFoodItem()">
+            <option value="">-- Tap to Open Library (40+ Options) --</option>
+            <option value="30">🥣 Porridge Oats (Dry - 50g) [30g]</option>
+            <option value="26">🥣 Weetabix (2 Biscuits) [26g]</option>
+            <option value="25">🥣 Cornflakes (30g Bowl) [25g]</option>
+            <option value="16">🍞 Wholemeal Bread (1 Slice) [16g]</option>
+            <option value="15">🍞 White Bread (1 Slice) [15g]</option>
+            <option value="22">🍞 Thick Toastie Bread (1 Slice) [22g]</option>
+            <option value="20">🍞 Crumpet (1 Standard) [20g]</option>
+            <option value="48">🍞 Plain Bagel (1 Whole) [48g]</option>
+            <option value="21">🥔 Sweet Potato (Baked - 100g) [21g]</option>
+            <option value="17">🥔 White Potato (Baked - 100g) [17g]</option>
+            <option value="40">🥔 Oven Chips (Portion - 150g) [40g]</option>
+            <option value="28">🍚 White Rice (Cooked - 100g) [28g]</option>
+            <option value="25">🍝 White Pasta (Cooked - 100g) [25g]</option>
+            <option value="22">🥫 Heinz Baked Beans (Half Can) [22g]</option>
+            <option value="23">🍌 Banana (1 Medium) [23g]</option>
+            <option value="15">🍎 Apple (1 Medium) [15g]</option>
+            <option value="17">🍿 Popcorn (Plain - 30g Bag) [17g]</option>
+            <option value="13">🥔 Walkers Crisps (25g Bag) [13g]</option>
+            <option value="24">🍫 Snickers (Standard Bar) [24g]</option>
+        </select>
+
+        <div class="custom-row">
+            <input type="number" id="customCarbs" placeholder="Type custom carbs manually (g)">
+            <button class="btn-add" onclick="addCustomItem()">Add Custom</button>
+        </div>
+
+        <div class="plate-container">
+            <div class="plate-title">🛒 Your Current Plate Basket:</div>
+            <div id="plateBasket"></div>
+            <div class="total-row">
+                <span>Total Combined Carbs:</span>
+                <span id="totalCarbVal">0g</span>
+            </div>
+        </div>
+
+        <label class="label">Enter Insulin-to-Carb Ratio (g/Unit):</label>
+        <input type="number" id="ratio" placeholder="e.g., 10">
+
+        <button class="btn-calc" onclick="calculateDose()">Calculate Total Meal Dose</button>
+
+        <div id="resultContainer"></div>
+
+        <div class="label" style="margin-top: 25px;">Today's Historical Logbook:</div>
+        <div id="logbook"></div>
+    </div>
+
+    <script>
+        let plate = [];
+        let historyLog = [];
+
+        function selectFoodItem() {
+            let select = document.getElementById('foodSelect');
+            if (!select.value) return;
+            let name = select.options[select.selectedIndex].text.split(' [')[0];
+            let carbs = parseFloat(select.value);
+            plate.push({ id: Date.now(), name: name, carbs: carbs });
+            select.selectedIndex = 0;
+            renderPlate();
+        }
+
+        function addCustomItem() {
+            let input = document.getElementById('customCarbs');
+            let carbs = parseFloat(input.value);
+            if (isNaN(carbs) || carbs <= 0) return alert('Please enter valid carbs');
+            plate.push({ id: Date.now(), name: '✏️ Custom Manual Food', carbs: carbs });
+            input.value = '';
+            renderPlate();
+        }
+
+        function removeFood(id) {
+            plate = plate.filter(item => item.id !== id);
+            renderPlate();
+        }
+
+        function renderPlate() {
+            let basket = document.getElementById('plateBasket');
+            let totalVal = document.getElementById('totalCarbVal');
+            basket.innerHTML = '';
+            let total = 0;
+
+            if (plate.length === 0) {
+                basket.innerHTML = '<div style="font-style: italic; color: #868e96; font-size: 13px; text-align: center;">Your plate is empty.</div>';
+            } else {
+                plate.forEach(item => {
+                    total += item.carbs;
+                    basket.innerHTML += `<div class="plate-card"><span>${item.name}</span><div><span style="font-weight:600; margin-right:10px;">${item.carbs}g</span><button class="btn-remove" onclick="removeFood(${item.id})">[REMOVE]</button></div></div>`;
+                });
+            }
+            totalVal.innerText = total + 'g';
+        }
+
+        function calculateDose() {
+            let ratio = parseFloat(document.getElementById('ratio').value);
+            if (plate.length === 0) return alert('Your plate is empty!');
+            if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid ratio');
+
+            let totalCarbs = plate.reduce((sum, item) => sum + item.carbs, 0);
+            let dose = (totalCarbs / ratio).toFixed(1);
+
+            document.getElementById('resultContainer').innerHTML = `<div class="result-box"><div class="result-label">Suggested Combined Dose:</div><div class="result-val">${dose} Units</div></div>`;
+
+            let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            historyLog.unshift({ time: time, carbs: totalCarbs, dose: dose });
+            renderLog();
+        }
+
+        function renderLog() {
+            let log = document.getElementById('logbook');
+            log.innerHTML = '';
+            if (historyLog.length === 0) {
+                log.innerHTML = '<div style="font-style: italic; color: #adb5bd; text-align: center; margin-top: 10px;">No entries logged yet.</div>';
+            } else {
+                historyLog.forEach(entry => {
+                    log.innerHTML += `<div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${entry.time}</span></div><div style="font-size:13px; color:#495057;">${entry.carbs}g combined carbs total → <span style="font-weight:bold; color:#28a745;">${entry.dose} Units</span></div></div>`;
+                });
+            }
+        }
+        renderPlate();
+        renderLog();
+    </script>
+</body>
+</html>
