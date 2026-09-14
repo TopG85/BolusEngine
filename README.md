@@ -1,144 +1,135 @@
 # Carb Counter App
 
-A simple React Native + Expo app for calculating insulin doses from carbohydrate totals and optional blood glucose correction.
+A personal-use React Native and Expo app for quick carb and insulin dose calculations.
 
-This app is intended for quick personal-use diabetes support, helping with meal dose estimates, correction dose calculations, and saved defaults for common settings.
+[![Expo](https://img.shields.io/badge/Expo-~57-000020?logo=expo&logoColor=white)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.86-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
+[![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android%20%7C%20Web-4CAF50)](https://github.com/TopG85/carb-counter-app)
 
-## Overview
+Carb Counter App helps you estimate insulin requirements for meals, correction doses, or a combination of both. It includes a large food library, custom food support, saved personal settings, and a recent history log for quick reference.
 
-The app lets you:
-- select multiple foods and build a meal plate
-- calculate a meal dose from your insulin-to-carb ratio
-- calculate a correction dose from current BG, target BG, and correction factor
-- calculate meal + correction together when needed
-- add custom foods to the library and remove custom foods you no longer need
-- save personal settings so they load automatically next time
-- review and delete recent dose history entries
+## Why this app?
 
-## Features
+This project was built to make carb and correction calculations easier to manage in everyday life.
 
-### Meal and correction dosing
-- Multi-item meal plate with automatic total carb calculation
-- Insulin-to-carb ratio input (g per 1 unit)
-- Optional BG correction dose using mmol/L or mg/dL
-- Meal-only, correction-only, and combined meal + correction calculations
-- Exact dose and rounded recommended dose
-- 0.5 unit and 1.0 unit rounding options
-- High-dose warning for large totals
+It is designed for:
+- meal bolus planning
+- correction dose support when blood glucose is high
+- saving common settings so the app feels familiar every time you use it
+- quickly managing a personal food list without needing a spreadsheet
 
-### Food library and custom foods
+## Key features
+
 - Built-in food library with 40+ common items
-- Add custom foods to the library
-- Remove custom foods from the library when they are no longer needed
-- Add a one-off custom food directly for the current meal
-- Save custom library items locally so they remain available on restart
+- Add your own foods to the library
+- Delete custom library foods you no longer need
+- Custom one-off meal entry for quick carb-only additions
+- Total carb calculation across multiple foods
+- Meal-only, correction-only, and combined dose calculations
+- Supports mmol/L and mg/dL BG units
+- Exact dose and rounded suggestion display
+- 0.5 unit or 1.0 unit rounding options
+- Saved personal settings using AsyncStorage
+- Recent dose history with food breakdowns
+- Delete history entries individually
+- Built-in help and BG guidance pop-ups
+- High-dose warning for unusually large totals
 
-### Personal settings and history
-- Save personal defaults for ratio, rounding, BG unit, target BG, and correction factor
-- Startup auto-load of saved settings
-- Dose history with food breakdowns and total carbs
-- Delete individual history entries
-- Help screen and BG explanation pop-ups for easier use
+## How it works
 
-## Tech stack
+1. Add foods to your plate from the built-in library or custom list.
+2. Enter your insulin-to-carb ratio, such as `10` for 1 unit per 10g carbs.
+3. Optional: add current BG, target BG, and correction factor for correction dosing.
+4. Tap `Calculate Dose`.
+5. Review the meal dose, correction dose, exact total, and rounded recommendation.
+6. Save your personal settings to make future calculations faster.
 
-- Expo SDK ~57.0.22
-- React 19.2.3
-- React Native 0.86.3
-- @react-native-async-storage/async-storage
-- AsyncStorage for local persistence
+## Example
 
-## Installation
-
-1. Install dependencies:
-   npm install
-
-2. Start the app:
-   npm run start
-
-3. Run on a device or emulator:
-   npm run ios
-   npm run android
-   npm run web
-
-If web support is needed, install the required Expo web packages:
-
-npx expo install react-dom react-native-web
-
-## How to use
-
-1. Open the food library and add items to your plate.
-2. If needed, add a custom food to the library using the custom food section.
-3. For a one-off meal item, use the custom meal entry and enter only the carbs value.
-4. Enter your insulin-to-carb ratio, for example `10` = 1 unit for every 10g carbs.
-5. Choose the dose rounding step: `0.5` or `1.0` units.
-6. Optional: enter BG settings for a correction dose:
-   - Current BG
-   - Target BG
-   - Correction factor
-   - BG unit: mmol/L or mg/dL
-7. Tap `Calculate Dose`.
-8. Review the result:
-   - meal dose
-   - correction dose
-   - exact total dose
-   - rounded suggested dose
-9. Use the history section to review prior calculations and delete entries as needed.
-10. Tap `Save My Personal Settings` to keep your defaults saved for next time.
-
-## Example calculations
-
-### Meal only
+### Meal-only example
 - Bagel: 48g
 - Orange: 12g
-- Total carbs = 60g
-- Ratio = 10 g/unit
-- Meal dose = 60 / 10 = 6.0 units
+- Total carbs: 60g
+- Ratio: 10 g/unit
+- Meal dose: 60 / 10 = 6.0 units
 
-### Correction only
-- Current BG = 11.0 mmol/L
-- Target BG = 6.0 mmol/L
-- Correction factor = 2.0 mmol/L per 1 unit
-- Correction dose = (11.0 - 6.0) / 2.0 = 2.5 units
+### Correction-only example
+- Current BG: 11.0 mmol/L
+- Target BG: 6.0 mmol/L
+- Correction factor: 2.0 mmol/L per unit
+- Correction dose: (11.0 - 6.0) / 2.0 = 2.5 units
 
-### Meal + correction
-- Meal dose = 6.0 units
-- Correction dose = 2.5 units
-- Exact total = 8.5 units
-- Rounded suggestion (0.5 unit step) = 8.5 units
+### Combined meal + correction example
+- Meal dose: 6.0 units
+- Correction dose: 2.5 units
+- Exact total: 8.5 units
+- Rounded recommendation: 8.5 units (0.5 step)
+
+## Getting started
+
+### Prerequisites
+
+- Node.js
+- npm
+- Expo CLI
+
+### Installation
+
+```bash
+npm install
+npm run start
+```
+
+Then run on your preferred platform:
+
+```bash
+npm run ios
+npm run android
+npm run web
+```
+
+If web support is needed:
+
+```bash
+npx expo install react-dom react-native-web
+```
+
+## Project structure
+
+- `App.js` — main app logic and UI
+- `package.json` — project scripts and dependencies
+- `README.md` — project documentation
 
 ## Safety notes
 
-This app is a calculation aid only and does not replace medical advice.
+This app is a calculation aid only and should not be treated as medical advice.
 
-- Always confirm any insulin dose with a healthcare professional when appropriate.
-- If current BG is at or below target, the correction dose is set to zero.
-- High-dose warnings appear when the calculated value is large.
-- Review all values carefully before dosing.
+- Always check values carefully before dosing.
+- If current BG is at or below target, the correction dose is automatically set to zero.
+- High-dose warnings are shown for unusually large results.
+- Please confirm any insulin-related decisions with a healthcare professional when appropriate.
 
-## Local storage and history
+## Local storage
 
-The app stores:
-- saved personal settings using AsyncStorage
-- custom food library entries locally
-- recent calculation history in-session
-
-The logbook can be used to review recent entries and remove any that are no longer needed.
+The app stores local data using AsyncStorage for:
+- saved personal settings
+- custom food library entries
+- recent calculation history
 
 ## Repository
 
-GitHub repository:
+GitHub:
 https://github.com/TopG85/carb-counter-app
 
 ## Recent updates
 
-- Added correction-only dose calculation without needing meal carbs
-- Added delete action for custom foods in the food library
-- Added custom food library save and retrieval logic
-- Improved meal + correction dose validation and warnings
-- Added saved defaults and local persistence
-- Improved overall app readability and logging
+- Added correction-only dose calculation when no meal carbs are present
+- Added custom food deletion support
+- Improved food library management and custom food persistence
+- Added better validation around meal and correction dosing
+- Saved personal defaults and recent log history
+- Refined app usability and help text for clearer everyday use
 
 ## License
 
-This project does not currently include a license file. Add a license if you plan to share or publish the project publicly.
+This project does not currently include a license file. If you plan to publish or share it publicly, add a license that matches your intended usage.
