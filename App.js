@@ -36,7 +36,7 @@ const FOOD_DATABASE = {
   pear: { name: '🍐 Pear (1 Medium)', carbs: 15 },
   orange: { name: '🍊 Orange (1 Medium)', carbs: 12 },
 
-  // Vegetables
+  // Vegetables 
   carrot: { name: '🥕 Carrot (1 Medium)', carbs: 5 },
   broccoli: { name: '🥦 Broccoli (100g)', carbs: 7 },
 
@@ -88,6 +88,18 @@ export default function App() {
     setHistory((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const removeFoodFromLibrary = async (foodId) => {
+    const updatedFoods = customLibraryFoods.filter((food) => food.id !== foodId);
+    setCustomLibraryFoods(updatedFoods);
+
+    try {
+      await AsyncStorage.setItem(CUSTOM_LIBRARY_STORAGE_KEY, JSON.stringify(updatedFoods));
+    } catch (error) {
+      console.error('Failed to remove saved custom food', error);
+      alert('Could not remove that food from the library. Please try again.');
+    }
+  };
+
   useEffect(() => {
     const loadSavedData = async () => {
       try {
@@ -98,21 +110,11 @@ export default function App() {
 
         if (rawSettings) {
           const parsed = JSON.parse(rawSettings);
-          if (typeof parsed.ratio === 'string') {
-            setRatio(parsed.ratio);
-          }
-          if (typeof parsed.roundingStep === 'string' && isValidRoundingStep(parsed.roundingStep)) {
-            setRoundingStep(parsed.roundingStep);
-          }
-          if (typeof parsed.bgUnit === 'string' && isValidBgUnit(parsed.bgUnit)) {
-            setBgUnit(parsed.bgUnit);
-          }
-          if (typeof parsed.targetBg === 'string') {
-            setTargetBg(parsed.targetBg);
-          }
-          if (typeof parsed.correctionFactor === 'string') {
-            setCorrectionFactor(parsed.correctionFactor);
-          }
+          if (typeof parsed.ratio === 'string') setRatio(parsed.ratio);
+          if (typeof parsed.roundingStep === 'string' && isValidRoundingStep(parsed.roundingStep)) setRoundingStep(parsed.roundingStep);
+          if (typeof parsed.bgUnit === 'string' && isValidBgUnit(parsed.bgUnit)) setBgUnit(parsed.bgUnit);
+          if (typeof parsed.targetBg === 'string') setTargetBg(parsed.targetBg);
+          if (typeof parsed.correctionFactor === 'string') setCorrectionFactor(parsed.correctionFactor);
         }
 
         if (rawCustomLibrary) {
@@ -147,10 +149,7 @@ export default function App() {
       }
       const cleanedCustomName = customFoodName.trim();
       const displayName = cleanedCustomName.length > 0 ? `✏️ ${cleanedCustomName}` : '✏️ Custom Manual Food';
-      setMealPlate((prevPlate) => [
-        ...prevPlate,
-        { id: Date.now().toString(), name: displayName, carbs: carbsAmount }
-      ]);
+      setMealPlate((prevPlate) => [...prevPlate, { id: Date.now().toString(), name: displayName, carbs: carbsAmount }]);
       setCustomCarbs('');
       setCustomFoodName('');
       return;
@@ -161,10 +160,7 @@ export default function App() {
       return;
     }
 
-    setMealPlate((prevPlate) => [
-      ...prevPlate,
-      { id: Date.now().toString(), name: foodItem.name, carbs: foodItem.carbs }
-    ]);
+    setMealPlate((prevPlate) => [...prevPlate, { id: Date.now().toString(), name: foodItem.name, carbs: foodItem.carbs }]);
     setShowMenu(false);
   };
 
@@ -264,22 +260,23 @@ export default function App() {
 
   const calculateTotalMealDose = () => {
     Keyboard.dismiss();
-    const insulinRatio = parseFloat(ratio);
-    const doseStep = parseFloat(roundingStep);
+    const hasMealInput = mealPlate.length > 0;
     const hasCorrectionInput = currentBg !== '' || targetBg !== '' || correctionFactor !== '';
 
-    if (mealPlate.length === 0) {
-      alert('Your meal plate is empty! Add foods from the database first.');
+    if (!hasMealInput && !hasCorrectionInput) {
+      alert('Add some food or enter BG correction details before calculating.');
       return;
     }
-    if (isNaN(insulinRatio) || insulinRatio <= 0 || insulinRatio > MAX_RATIO) {
+
+    const insulinRatio = parseFloat(ratio);
+    const mealDose = hasMealInput ? totalCarbsOnPlate / insulinRatio : 0;
+    let correctionDose = 0;
+    let isBelowOrAtTarget = false;
+
+    if (hasMealInput && (isNaN(insulinRatio) || insulinRatio <= 0 || insulinRatio > MAX_RATIO)) {
       alert(`Please enter a valid Insulin-to-Carb Ratio between 1 and ${MAX_RATIO}`);
       return;
     }
-
-    const mealDose = totalCarbsOnPlate / insulinRatio;
-    let correctionDose = 0;
-    let isBelowOrAtTarget = false;
 
     if (hasCorrectionInput) {
       const currentBgValue = parseFloat(currentBg);
@@ -312,9 +309,11 @@ export default function App() {
       correctionDose = isBelowOrAtTarget ? 0 : difference / correctionFactorValue;
     }
 
+    const doseStep = parseFloat(roundingStep);
     const exactDose = mealDose + correctionDose;
     const roundedDose = roundToStep(exactDose, doseStep);
     const finalDoseString = `${roundedDose.toFixed(1)} Units`;
+
     setCalculatedDose({
       mealDose: mealDose.toFixed(2),
       correctionDose: correctionDose.toFixed(2),
@@ -342,9 +341,10 @@ export default function App() {
   const baseLibraryFoods = Object.keys(FOOD_DATABASE).map((key) => ({
     id: key,
     name: FOOD_DATABASE[key].name,
-    carbs: FOOD_DATABASE[key].carbs
+    carbs: FOOD_DATABASE[key].carbs,
+    isCustom: false
   }));
-  const fullLibraryFoods = [...baseLibraryFoods, ...customLibraryFoods];
+  const fullLibraryFoods = [...baseLibraryFoods, ...customLibraryFoods.map((food) => ({ ...food, isCustom: true }))];
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
@@ -365,14 +365,22 @@ export default function App() {
         </TouchableOpacity>
 
         {showMenu && (
-          <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 200, overflow: 'hidden' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 240, overflow: 'hidden' }}>
             <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
               {fullLibraryFoods.map((foodItem) => (
-                <TouchableOpacity key={foodItem.id} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => addFoodToPlate(foodItem)}>
-                  <Text style={{ fontSize: 14, color: '#212529', flex: 1 }}>{foodItem.name}</Text>
-                  <Text style={{ color: '#6c757d', fontSize: 13, marginRight: 8 }}>{foodItem.carbs}g</Text>
-                  <Text style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 13 }}>[ADD]</Text>
-                </TouchableOpacity>
+                <View key={foodItem.id} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <TouchableOpacity onPress={() => addFoodToPlate(foodItem)} style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 14, color: '#212529', flex: 1 }}>{foodItem.name}</Text>
+                    <Text style={{ color: '#6c757d', fontSize: 13, marginRight: 8 }}>{foodItem.carbs}g</Text>
+                    <Text style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 13 }}>[ADD]</Text>
+                  </TouchableOpacity>
+
+                  {foodItem.isCustom && (
+                    <TouchableOpacity onPress={() => removeFoodFromLibrary(foodItem.id)} style={{ marginLeft: 8, paddingHorizontal: 6, paddingVertical: 4 }}>
+                      <Text style={{ color: '#dc3545', fontWeight: '700', fontSize: 12 }}>Delete</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               ))}
             </ScrollView>
           </View>
@@ -401,7 +409,7 @@ export default function App() {
         <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 20 }}>
           <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Quick Custom Food for This Meal</Text>
           <TextInput
-            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14, marginBottom: 8 }}
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14, marginBottom: 8 }}
             placeholder="Custom food name (optional)"
             value={customFoodName}
             onChangeText={setCustomFoodName}
@@ -539,7 +547,7 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity style={{ backgroundColor: '#28a745', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 5 }} onPress={calculateTotalMealDose}>
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Calculate Total Meal Dose</Text>
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Calculate Dose</Text>
         </TouchableOpacity>
 
         {calculatedDose && (
