@@ -43,6 +43,7 @@ const FOOD_DATABASE = {
 
   // Snacks
   popcorn: { name: '🍿 Popcorn (Plain - 30g Bag)', carbs: 17 },
+  popcorn: { name: '🍿 Popcorn (Sweet - 100g Bag)', carbs: 69 },
   walkersCrisps: { name: '🥔 Walkers Crisps (25g Bag)', carbs: 13 },
   pringles: { name: '🥔 Pringles (Portion - 30g)', carbs: 16 },
   digestive: { name: '🍪 Digestive Biscuit (1)', carbs: 9 },
