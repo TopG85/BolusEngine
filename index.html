@@ -1,340 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Select Carb Counter</title>
+    <title>Advanced Carb & Insulin Tracker</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-
-        .header {
-            background-color: #fff;
-            padding: 20px;
-            border-bottom: 1px solid #dee2e6;
-            text-align: center;
-        }
-
-        .title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: bold;
-            color: #1a1a1a;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        select,
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            background-color: #fff;
-            font-size: 16px;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-        }
-
-        .custom-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .custom-row input {
-            margin-bottom: 0;
-        }
-
-        .btn-add {
-            background-color: #007AFF;
-            color: #fff;
-            border: none;
-            padding: 0 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .plate-container {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #dee2e6;
-            margin-bottom: 20px;
-        }
-
-        .plate-title {
-            font-size: 15px;
-            font-weight: bold;
-            color: #212529;
-            margin: 0 0 10px 0;
-        }
-
-        .plate-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f8f9fa;
-        }
-
-        .btn-remove {
-            color: #dc3545;
-            background: none;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-            padding-top: 10px;
-            border-top: 2px solid #dee2e6;
-            font-weight: bold;
-        }
-
-        .btn-calc {
-            width: 100%;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        .result-box {
-            margin-top: 10px;
-            padding: 15px;
-            background-color: #e8f0fe;
-            border-radius: 8px;
-            text-align: center;
-            color: #185abc;
-            margin-bottom: 20px;
-        }
-
-        .result-val {
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-
-        .log-card {
-            background-color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #e9ecef;
-        }
-
-        .log-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .checkbox-group input {
-            width: auto;
-            margin-bottom: 0;
-        }
-
-        .warning-box {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-top: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .header { background-color: #fff; padding: 18px 20px; border-bottom: 1px solid #dee2e6; text-align: center; }
+        .title { margin: 0; font-size: 20px; font-weight: bold; color: #1a1a1a; }
+        .container { max-width: 500px; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
+        
+        .section-label { font-size: 15px; font-weight: bold; color: #495057; margin-top: 15px; margin-bottom: 8px; }
+        .label { font-size: 14px; font-weight: 600; color: #495057; margin-bottom: 6px; display: block; }
+        
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dee2e6; background-color: #fff; font-size: 16px; box-sizing: border-box; margin-bottom: 15px; }
+        
+        .toggle-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .btn-toggle { flex: 1; padding: 10px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; font-size: 14px; }
+        .btn-toggle-active { background-color: #007AFF; color: #fff; border-color: #007AFF; }
+        
+        .dropdown-selector { background-color: #fff; padding: 14px; border-radius: 8px; border: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 10px; }
+        .dropdown-text { font-size: 14px; color: #495057; font-weight: 500; }
+        .scroll-window { background-color: #fff; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 15px; max-height: 200px; overflow-y: auto; }
+        
+        .menu-item { padding: 12px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-text { font-size: 14px; color: #212529; }
+        .add-action { color: #007AFF; font-weight: bold; font-size: 13px; }
+        .delete-action { color: #dc3545; font-weight: bold; font-size: 12px; cursor: pointer; margin-left: 10px; background: none; border: none; padding: 0; }
+        
+        .custom-row { display: flex; gap: 8px; margin-bottom: 20px; }
+        .custom-row input { margin-bottom: 0; }
+        .btn-add-custom { background-color: #007AFF; color: #fff; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        .plate-box { background-color: #fff; padding: 15px; border-radius: 10px; border: 1px solid #dee2e6; margin-bottom: 20px; }
+        .plate-card { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f8f9fa; }
+        .plate-card:last-child { border-bottom: none; }
+        
+        .btn-calc { width: 100%; background-color: #28a745; color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        
+        .result-panel { margin-top: 20px; padding: 15px; background-color: #e8f0fe; border-radius: 8px; text-align: center; color: #185abc; }
+        .result-value { font-size: 26px; font-weight: bold; margin-top: 4px; }
+        .warning-box { background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; font-size: 14px; margin-top: 15px; text-align: center; font-weight: bold; }
+        
+        .log-card { background-color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e9ecef; }
+        .log-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     </style>
 </head>
-
 <body>
 
-    <div class="header">
-        <div class="title">Multi-Select Carb Counter</div>
-    </div>
+    <div class="header"><div class="title">Multi-Select Carb Counter</div></div>
 
     <div class="container">
-        <label class="label">1. Choose Food From Library:</label>
-        <select id="foodSelect" onchange="selectFoodItem()">
-            <option value="">-- Tap to Open Library (40+ Options) --</option>
-            <option value="30">🥣 Porridge Oats (Dry - 50g) [30g]</option>
-            <option value="26">🥣 Weetabix (2 Biscuits) [26g]</option>
-            <option value="25">🥣 Cornflakes (30g Bowl) [25g]</option>
-            <option value="16">🍞 Wholemeal Bread (1 Slice) [16g]</option>
-            <option value="15">🍞 White Bread (1 Slice) [15g]</option>
-            <option value="22">🍞 Thick Toastie Bread (1 Slice) [22g]</option>
-            <option value="20">🍞 Crumpet (1 Standard) [20g]</option>
-            <option value="48">🍞 Plain Bagel (1 Whole) [48g]</option>
-            <option value="21">🥔 Sweet Potato (Baked - 100g) [21g]</option>
-            <option value="17">🥔 White Potato (Baked - 100g) [17g]</option>
-            <option value="40">🥔 Oven Chips (Portion - 150g) [40g]</option>
-            <option value="28">🍚 White Rice (Cooked - 100g) [28g]</option>
-            <option value="25">🍝 White Pasta (Cooked - 100g) [25g]</option>
-            <option value="22">🥫 Heinz Baked Beans (Half Can) [22g]</option>
-            <option value="23">🍌 Banana (1 Medium) [23g]</option>
-            <option value="15">🍎 Apple (1 Medium) [15g]</option>
-            <option value="17">🍿 Popcorn (Plain - 30g Bag) [17g]</option>
-            <option value="13">🥔 Walkers Crisps (25g Bag) [13g]</option>
-            <option value="24">🍫 Snickers (Standard Bar) [24g]</option>
-        </select>
-
-        <div class="custom-row">
-            <input type="number" id="customCarbs" placeholder="Type custom carbs manually (g)">
-            <button class="btn-add" onclick="addCustomItem()">Add Custom</button>
+        <!-- RENDER CONTROLS CONFIGURATION -->
+        <label class="label">App Metric Profiles:</label>
+        <div class="toggle-row">
+            <button id="btnMmol" class="btn-toggle btn-toggle-active" onclick="setUnit('mmol')">mmol/L</button>
+            <button id="btnMgdl" class="btn-toggle" onclick="setUnit('mgdl')">mg/dL</button>
+            <button id="btnStep05" class="btn-toggle btn-toggle-active" onclick="setStep('0.5')">0.5 U Steps</button>
+            <button id="btnStep10" class="btn-toggle" onclick="setStep('1.0')">1.0 U Steps</button>
         </div>
 
-        <div class="plate-container">
-            <div class="plate-title">🛒 Your Current Plate Basket:</div>
+        <text class="section-label">1. Add Foods to Your Meal Plate:</text>
+        <div class="dropdown-selector" onclick="toggleMenu()">
+            <span id="dropdownLabel" class="dropdown-text">Tap to Open Food Library...</span>
+            <span id="dropdownArrow" style="font-size:12px; color:#6c757d;">▼</span>
+        </div>
+
+        <div id="scrollWindow" class="scroll-window" style="display: none;">
+            <div id="libraryContainer"></div>
+        </div>
+
+        <!-- NEW FOOD RUNTIME LIBRARY REGISTRY BUILDER -->
+        <div class="custom-row">
+            <input type="text" id="newFoodName" placeholder="New Food Name (e.g. Popcorn)">
+            <input type="number" id="newFoodCarbs" placeholder="Carbs (g)" style="width: 100px;">
+            <button class="btn-add-custom" onclick="addNewFoodToLibrary()">Save to DB</button>
+        </div>
+
+        <!-- MEAL PLATE BASKET SUMMARY -->
+        <div class="plate-box">
+            <div style="font-size: 15px; font-weight: bold; color: #212529; margin-bottom: 10px;">🛒 Your Current Plate Basket:</div>
             <div id="plateBasket"></div>
-            <div class="total-row">
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 2px solid #dee2e6; font-weight: bold;">
                 <span>Total Combined Carbs:</span>
-                <span id="totalCarbVal">0g</span>
+                <span id="totalCarbsLabel" style="color:#007AFF;">0g</span>
             </div>
         </div>
 
-        <label class="label">Enter Insulin-to-Carb Ratio (g/Unit):</label>
-        <input type="number" id="ratio" placeholder="e.g., 10">
-
-        <div class="checkbox-group">
-            <input type="checkbox" id="enableCorrection" onchange="toggleCorrectionFields()">
-            <label for="enableCorrection" class="label" style="margin-bottom:0; cursor:pointer;">Include Blood Glucose
-                (BG) Correction Doses</label>
+        <!-- RATIO INPUT -->
+        <div style="margin-bottom: 15px;">
+            <label class="label">Enter Insulin-to-Carb Ratio (g/Unit):</label>
+            <input type="number" id="ratio" placeholder="e.g., 10">
         </div>
 
-        <div id="correctionFields" style="display: none;">
-            <label class="label">Current Blood Glucose (mmol/L):</label>
-            <input type="number" step="0.1" id="currentBG" placeholder="e.g., 9.5">
+        <!-- BLOOD GLUCOSE REPAIR FIELD FORMULAS -->
+        <text class="section-label">2. Blood Glucose Correction Parameters (Optional):</text>
+        <div style="margin-top: 10px;">
+            <label id="lblCurrentBg" class="label">Current Blood Glucose:</label>
+            <input type="number" step="0.1" id="currentBg" placeholder="Enter reading only if high">
 
-            <label class="label">Target Blood Glucose (mmol/L):</label>
-            <input type="number" step="0.1" id="targetBG" placeholder="e.g., 5.5">
+            <label id="lblTargetBg" class="label">Target Blood Glucose:</label>
+            <input type="number" step="0.1" id="targetBg" placeholder="e.g., 5.5">
 
-            <label class="label">Correction Factor / Sensitivity (mmol/L per Unit):</label>
-            <input type="number" step="0.1" id="correctionFactor" placeholder="e.g., 2.0">
+            <label id="lblFactor" class="label">Correction Factor / Insulin Sensitivity:</label>
+            <input type="number" step="0.1" id="factor" placeholder="e.g., 2.0">
         </div>
 
-        <button class="btn-calc" onclick="calculateDose()">Calculate Total Meal Dose</button>
+        <button class="btn-calc" onclick="calculateTotalDose()">Calculate Total Meal Dose</button>
 
-        <div id="resultContainer"></div>
-        <div id="warningContainer"></div>
+        <div id="resultPanel" style="display: none;"></div>
+        <div id="warningPanel" style="display: none;"></div>
 
-        <div class="label" style="margin-top: 25px;">Today's Historical Logbook:</div>
-        <div id="logbook"></div>
+        <text class="section-label">Today's Historical Logbook:</text>
+        <div id="logbookPanel" style="margin-top: 10px; margin-bottom: 40px;"></div>
     </div>
 
     <script>
-        let plate = [];
-        let historyLog = [];
+        const BASE_FOOD_DATABASE = {
+          cappuccino: { name: '☕ Cappuccino (Large Skimmed Milk)', carbs: 13 },
+          porridgeOats: { name: '🥣 Porridge Oats (Dry - 50g)', carbs: 30 },
+          weetabix: { name: '🥣 Weetabix (2 Biscuits)', carbs: 26 },
+          cornflakes: { name: '🥣 Cornflakes (30g Bowl)', carbs: 25 },
+          muesli: { name: '🥣 Muesli (Swiss Style - 50g)', carbs: 33 },
+          wholeBread: { name: '🍞 Wholemeal Bread (1 Slice)', carbs: 16 },
+          whiteBread: { name: '🍞 White Bread (1 Slice)', carbs: 15 },
+          toastieSlice: { name: '🍞 Thick Toastie Bread (1 Slice)', carbs: 22 },
+          crumpet: { name: '🍞 Crumpet (1 Standard)', carbs: 20 },
+          bagel: { name: '🍞 Plain Bagel (1 Whole)', carbs: 48 },
+          sweetPotato: { name: '🥔 Sweet Potato (Baked - 100g)', carbs: 21 },
+          whitePotato: { name: '🥔 White Potato (Baked - 100g)', carbs: 17 },
+          chips: { name: '🥔 Oven Chips (Portion - 150g)', carbs: 40 },
+          whiteRice: { name: '🍚 White Rice (Cooked - 100g)', carbs: 28 },
+          pasta: { name: '🍝 White Pasta (Cooked - 100g)', carbs: 25 },
+          bakedBeans: { name: '🥫 Heinz Baked Beans (Half Can)', carbs: 22 },
+          banana: { name: '🍌 Banana (1 Medium)', carbs: 23 },
+          apple: { name: '🍎 Apple (1 Medium)', carbs: 15 },
+          popcorn: { name: '🍿 Popcorn (Plain - 30g Bag)', carbs: 17 },
+          walkersCrisps: { name: '🥔 Walkers Crisps (25g Bag)', carbs: 13 },
+          pringles: { name: '🥔 Pringles (Portion - 30g)', carbs: 16 },
+          digestive: { name: '🍪 Digestive Biscuit (1)', carbs: 9 },
+          kitkat: { name: '🍫 KitKat (2 Finger Bar)', carbs: 13 },
+          snickers: { name: '🍫 Snickers (Standard 48g)', carbs: 24 },
+        };
 
-        function toggleCorrectionFields() {
-            let checkbox = document.getElementById('enableCorrection');
-            document.getElementById('correctionFields').style.display = checkbox.checked ? 'block' : 'none';
+        let activePlate = [];
+let historyLog = [];
+let customLibrary = JSON.parse(localStorage.getItem('carb_custom_lib')) || [];
+let bgUnit = 'mmol';
+let roundingStep = '0.5';
+
+function setUnit(unit) {
+    bgUnit = unit;
+    document.getElementById('btnMmol').className = unit === 'mmol' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
+    document.getElementById('btnMgdl').className = unit === 'mgdl' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
+    document.getElementById('lblCurrentBg').innerText = `Current Blood Glucose (${unit === 'mmol' ? 'mmol/L' : 'mg/dL'}):`;
+    document.getElementById('lblTargetBg').innerText = `Target Blood Glucose (${unit === 'mmol' ? 'mmol/L' : 'mg/dL'}):`;
+    document.getElementById('lblFactor').innerText = `Correction Factor (${unit === 'mmol' ? 'mmol/L per Unit' : 'mg/dL per Unit'}):`;
+}
+
+function setStep(step) {
+    roundingStep = step;
+    document.getElementById('btnStep05').className = step === '0.5' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
+    document.getElementById('btnStep10').className = step === '1.0' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
+}
+
+function toggleMenu() {
+    let win = document.getElementById('scrollWindow');
+    let arrow = document.getElementById('dropdownArrow');
+    if (win.style.display === 'none') {
+        win.style.display = 'block';
+        arrow.innerText = '▲';
+        renderLibraryMenu();
+    } else {
+        win.style.display = 'none';
+        arrow.innerText = '▼';
+    }
+}
+
+function renderLibraryMenu() {
+    let container = document.getElementById('libraryContainer');
+    container.innerHTML = '';
+    
+    let baseItems = Object.keys(BASE_FOOD_DATABASE).map(k => ({ key: k, name: BASE_FOOD_DATABASE[k].name, carbs: BASE_FOOD_DATABASE[k].carbs, isCustom: false }));
+    let fullList = [...baseItems, ...customLibrary];
+    
+    document.getElementById('dropdownLabel').innerText = `Select Item Profile (${fullList.length} Options)...`;
+    
+    fullList.forEach(item => {
+        let card = document.createElement('div');
+        card.className = 'menu-item';
+        card.innerHTML = `<span class="menu-text">${item.name} (${item.carbs}g)</span>`;
+        
+        let row = document.createElement('div');
+        let addBtn = document.createElement('span');
+        addBtn.className = 'add-action';
+        addBtn.innerText = '[ADD]';
+        addBtn.onclick = () => addItemToPlate(item.name, item.carbs);
+        row.appendChild(addBtn);
+        
+        if (item.isCustom) {
+            let delBtn = document.createElement('button');
+            delBtn.className = 'delete-action';
+            delBtn.innerText = '🗑';
+            delBtn.onclick = (e) => { e.stopPropagation(); deleteLibraryItem(item.key); };
+            row.appendChild(delBtn);
         }
+        
+        card.appendChild(row);
+        container.appendChild(card);
+    });
+}
 
-        function selectFoodItem() {
-            let select = document.getElementById('foodSelect');
-            if (!select.value) return;
-            let displayName = select.options[select.selectedIndex].text.split(' [')[0];
-            let carbs = parseFloat(select.value);
-            plate.push({ id: Date.now(), name: displayName, carbs: carbs });
-            select.selectedIndex = 0;
-            renderPlate();
+function addItemToPlate(name, carbs) {
+    activePlate.push({ id: Date.now() + Math.random(), name: name, carbs: carbs });
+    document.getElementById('scrollWindow').style.display = 'none';
+    document.getElementById('dropdownArrow').innerText = '▼';
+    updatePlateView();
+}
+
+function addNewFoodToLibrary() {
+    let name = document.getElementById('newFoodName').value.trim();
+    let carbs = parseFloat(document.getElementById('newFoodCarbs').value);
+    if (!name || isNaN(carbs) || carbs <= 0) return alert('Please enter valid library attributes');
+    
+    customLibrary.push({ key: 'custom_' + Date.now(), name: '🆕 ' + name, carbs: carbs, isCustom: true });
+    localStorage.setItem('carb_custom_lib', JSON.stringify(customLibrary));
+    
+    document.getElementById('newFoodName').value = '';
+    document.getElementById('newFoodCarbs').value = '';
+    renderLibraryMenu();
+}
+
+function deleteLibraryItem(key) {
+    customLibrary = customLibrary.filter(i => i.key !== key);
+    localStorage.setItem('carb_custom_lib', JSON.stringify(customLibrary));
+    renderLibraryMenu();
+}
+
+function removePlateItem(id) {
+    activePlate = activePlate.filter(i => i.id !== id);
+    updatePlateView();
+}
+
+function updatePlateView() {
+    let basket = document.getElementById('plateBasket');
+    basket.innerHTML = '';
+    let total = 0;
+    
+    if (activePlate.length === 0) {
+        basket.innerHTML = '<div style="font-style: italic; color: #868e96; font-size: 13px; text-align: center; margin-top:5px;">Your plate is empty.</div>';
+    } else {
+        activePlate.forEach(item => {
+            total += item.carbs;
+            basket.innerHTML += `<div class="plate-card"><span>${item.name}</span><div><span style="font-weight:600; margin-right:12px;">${item.carbs}g</span><span class="btn-remove" onclick="removePlateItem(${item.id})">[REMOVE]</span></div></div>`;
+        });
+    }
+    document.getElementById('totalCarbsLabel').innerText = total + 'g';
+}
+
+function calculateTotalDose() {
+    let ratio = parseFloat(document.getElementById('ratio').value);
+    let totalCarbs = activePlate.reduce((s, i) => s + i.carbs, 0);
+    
+    if (activePlate.length === 0) return alert('Your plate basket is empty!');
+    if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid ratio');
+    
+    let mealDose = totalCarbs / ratio;
+    let correctionDose = 0;
+    
+    let current = parseFloat(document.getElementById('currentBg').value);
+    let target = parseFloat(document.getElementById('targetBg').value);
+    let factor = parseFloat(document.getElementById('factor').value);
+    
+    if (!isNaN(current) && !isNaN(target) && !isNaN(factor) && factor > 0) {
+        if (current > target) {
+            correctionDose = (current - target) / factor;
         }
+    }
+    
+    let exact = mealDose + correctionDose;
+    let roundVal = parseFloat(roundingStep);
+    let rounded = (Math.round(exact / roundVal) * roundVal).toFixed(1);
+    
+    let panel = document.getElementById('resultPanel');
+    panel.style.display = 'block';
+    panel.innerHTML = `
+        <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div>
+        <div style="font-size:13px; margin-top:4px;">Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div>
+        <div class="result-value">${rounded} Units Recommendation</div>
+    `;
+    
+    let warn = document.getElementById('warningPanel');
+    if (exact >= 15.0) {
+        warn.style.display = 'block';
+        warn.innerHTML = `<div class="warning-box">🚨 Safety Warning: Large Insulin Dose Detected! Double-check inputs carefully.</div>`;
+    } else {
+        warn.style.display = 'none';
+    }
+    
+    let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    historyLog.unshift({ time: time, carbs: totalCarbs, dose: rounded });
+    renderLogbookView();
+}
 
-        function addCustomItem() {
-            let input = document.getElementById('customCarbs');
-            let carbs = parseFloat(input.value);
-            if (isNaN(carbs) || carbs <= 0) return alert('Please enter valid carbs');
-            plate.push({ id: Date.now(), name: '✏️ Custom Manual Food', carbs: carbs });
-            input.value = '';
-            renderPlate();
-        }
-
-        function removeFood(id) {
-            plate = plate.filter(item => item.id !== id);
-            renderPlate();
-        }
-
-        function renderPlate() {
-            let basket = document.getElementById('plateBasket');
-            let totalVal = document.getElementById('totalCarbVal');
-            basket.innerHTML = '';
-            let total = 0;
-
-            if (plate.length === 0) {
-                basket.innerHTML = '<div style="font-style: italic; color: #868e96; font-size: 13px; text-align: center;">Your plate is empty.</div>';
-            } else {
-                plate.forEach(item => {
-                    total += item.carbs;
-                    basket.innerHTML += `<div class="plate-card"><span>${item.name}</span><div><span style="font-weight:600; margin-right:10px;">${item.carbs}g</span><button class="btn-remove" onclick="removeFood(${item.id})">[REMOVE]</button></div></div>`;
-                });
-            }
-            totalVal.innerText = total + 'g';
-        }
-
-        function calculateDose() {
-            let ratio = parseFloat(document.getElementById('ratio').value);
-            let totalCarbs = plate.reduce((sum, item) => sum + item.carbs, 0);
-
-            if (plate.length === 0) return alert('Your plate basket is empty! Select items from the library first.');
-            if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid Insulin-to-Carb ratio');
-
-            let mealDose = totalCarbs / ratio;
-            let correctionDose = 0;
-
-            let includeCorrection = document.getElementById('enableCorrection').checked;
-            if (includeCorrection) {
-                let currentBG = parseFloat(document.getElementById('currentBG').value);
-                let targetBG = parseFloat(document.getElementById('targetBG').value);
-                let factor = parseFloat(document.getElementById('correctionFactor').value);
-
-                if (isNaN(currentBG) || isNaN(targetBG) || isNaN(factor) || factor <= 0) {
-                    return alert('Please enter valid numbers for the correction parameters.');
-                }
-
-                if (currentBG > targetBG) {
-                    correctionDose = (currentBG - targetBG) / factor;
-                }
-            }
-
-            let exactTotal = mealDose + correctionDose;
-
-            let roundedDose = exactTotal.toFixed(1); document.getElementById('resultContainer').innerHTML = <div class="result-box"> <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div> <div style="font-size:14px; margin-top:4px;">Calculated Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div> <div class="result-val">${roundedDose} Units Suggestion</div> </div>; let warningBox = document.getElementById('warningContainer'); warningBox.innerHTML = exactTotal >= 12.0 ? <div class="warning-box">🚨 Safety Alert: High-Dose Threshold Crossed! Verify total parameters carefully.</div> : ''; let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); historyLog.unshift({ time: time, carbs: totalCarbs, dose: roundedDose }); renderLog();
-        } function renderLog() { let log = document.getElementById('logbook'); log.innerHTML = ''; if (historyLog.length === 0) { log.innerHTML = 'No entries logged yet today.'; } else { historyLog.forEach(entry => { log.innerHTML += <div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${entry.time}</span></div><div style="font-size:13px; color:#495057;">${entry.carbs}g combined carbs total → <span style="font-weight:bold; color:#28a745;">${entry.dose} Units</span></div></div>; }); } } renderPlate(); renderLog(); 
+function renderLogbookView() {
+    let log = document.getElementById('logbookPanel');
+    log.innerHTML = '';
+    if (historyLog.length === 0) {
+        log.innerHTML = '<div style="font-style: italic; color: #adb5bd; text-align: center; margin-top: 10px;">No entries logged yet today.</div>';
+    } else {
+        historyLog.forEach(e => {
+            log.innerHTML += `<div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${e.time}</span></div><div style="font-size:13px; color:#495057;">${e.carbs}g carbs tracking total → <span style="font-weight:bold; color:#28a745;">${e.dose} Units</span></div></div>`;
+        });
+    }
+}
+updatePlateView();
+renderLogbookView();
