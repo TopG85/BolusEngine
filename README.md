@@ -8,6 +8,12 @@ A personal-use React Native + Expo app for quick carb counting and insulin dose 
 
 Carb Counter App helps estimate insulin needs for meals, correction doses, or a combination of both. It includes a built-in food library, a live library delete option, saved personal settings, and a recent dose history log.
 
+## Features
+
+**🛒 Multi-Select Basket:** Select multiple food items (like Sweet Potatoes + Bagels + Apples) to build a complete meal on a unified plate rather than tracking one single food item at a time.
+**✏️ Custom Entries:** Manually input custom carbohydrate quantities for unlisted items on the fly.
+**🌐 Dual Deployment:** Cross-platform single-screen app engine running natively on iOS (Expo Go SDK 57) and deployed as a fast, independent web engine on GitHub Pages.
+
 ## Why this app?
 
 This project was created to make carb and correction calculations easier to manage in everyday life.
