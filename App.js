@@ -3,7 +3,6 @@ import { Text, View, TextInput, TouchableOpacity, ScrollView, Keyboard, Modal, P
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FOOD_DATABASE = {
-
   // Drinks
   Cappuccino: { name: '☕ Cappuccino (Large Skimmed Milk - 473ml )', carbs: 12.8 },
 
@@ -42,8 +41,8 @@ const FOOD_DATABASE = {
   broccoli: { name: '🥦 Broccoli (100g)', carbs: 7 },
 
   // Snacks
-  popcorn: { name: '🍿 Popcorn (Plain - 30g Bag)', carbs: 17 },
-  popcorn: { name: '🍿 Popcorn (Sweet - 100g Bag)', carbs: 69 },
+  popcornPlain: { name: '🍿 Popcorn (Plain - 30g Bag)', carbs: 17 },
+  popcornSweet: { name: '🍿 Popcorn (Sweet - 100g Bag)', carbs: 69 },
   walkersCrisps: { name: '🥔 Walkers Crisps (25g Bag)', carbs: 13 },
   pringles: { name: '🥔 Pringles (Portion - 30g)', carbs: 16 },
   digestive: { name: '🍪 Digestive Biscuit (1)', carbs: 9 },
@@ -60,6 +59,7 @@ const BG_LIMITS = {
   mgdl: { min: 36, max: 600, unitLabel: 'mg/dL' }
 };
 const SETTINGS_STORAGE_KEY = 'carb-counter-settings-v1';
+const CUSTOM_LIBRARY_STORAGE_KEY = 'carb-counter-custom-library-v1';
 
 const roundToStep = (value, step) => Math.round(value / step) * step;
 const isValidRoundingStep = (value) => value === '0.5' || value === '1';
@@ -69,6 +69,7 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [ratio, setRatio] = useState('');
   const [customCarbs, setCustomCarbs] = useState('');
+  const [customFoodName, setCustomFoodName] = useState('');
   const [mealPlate, setMealPlate] = useState([]);
   const [history, setHistory] = useState([]);
   const [roundingStep, setRoundingStep] = useState('0.5');
@@ -77,67 +78,137 @@ export default function App() {
   const [targetBg, setTargetBg] = useState('');
   const [correctionFactor, setCorrectionFactor] = useState('');
   const [calculatedDose, setCalculatedDose] = useState(null);
-
-  // help modals
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [bgHelpVisible, setBgHelpVisible] = useState(false);
+  const [customLibraryFoods, setCustomLibraryFoods] = useState([]);
+  const [newLibraryFoodName, setNewLibraryFoodName] = useState('');
+  const [newLibraryFoodCarbs, setNewLibraryFoodCarbs] = useState('');
 
-  // remove a single history entry
   const removeHistoryEntry = (id) => {
     setHistory((prev) => prev.filter((e) => e.id !== id));
   };
 
   useEffect(() => {
-    const loadSavedSettings = async () => {
+    const loadSavedData = async () => {
       try {
-        const rawSettings = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
-        if (!rawSettings) {
-          return;
+        const [rawSettings, rawCustomLibrary] = await Promise.all([
+          AsyncStorage.getItem(SETTINGS_STORAGE_KEY),
+          AsyncStorage.getItem(CUSTOM_LIBRARY_STORAGE_KEY)
+        ]);
+
+        if (rawSettings) {
+          const parsed = JSON.parse(rawSettings);
+          if (typeof parsed.ratio === 'string') {
+            setRatio(parsed.ratio);
+          }
+          if (typeof parsed.roundingStep === 'string' && isValidRoundingStep(parsed.roundingStep)) {
+            setRoundingStep(parsed.roundingStep);
+          }
+          if (typeof parsed.bgUnit === 'string' && isValidBgUnit(parsed.bgUnit)) {
+            setBgUnit(parsed.bgUnit);
+          }
+          if (typeof parsed.targetBg === 'string') {
+            setTargetBg(parsed.targetBg);
+          }
+          if (typeof parsed.correctionFactor === 'string') {
+            setCorrectionFactor(parsed.correctionFactor);
+          }
         }
-        const parsed = JSON.parse(rawSettings);
-        if (typeof parsed.ratio === 'string') {
-          setRatio(parsed.ratio);
-        }
-        if (typeof parsed.roundingStep === 'string' && isValidRoundingStep(parsed.roundingStep)) {
-          setRoundingStep(parsed.roundingStep);
-        }
-        if (typeof parsed.bgUnit === 'string' && isValidBgUnit(parsed.bgUnit)) {
-          setBgUnit(parsed.bgUnit);
-        }
-        if (typeof parsed.targetBg === 'string') {
-          setTargetBg(parsed.targetBg);
-        }
-        if (typeof parsed.correctionFactor === 'string') {
-          setCorrectionFactor(parsed.correctionFactor);
+
+        if (rawCustomLibrary) {
+          const parsedFoods = JSON.parse(rawCustomLibrary);
+          if (Array.isArray(parsedFoods)) {
+            const validFoods = parsedFoods.filter(
+              (item) =>
+                item &&
+                typeof item.id === 'string' &&
+                typeof item.name === 'string' &&
+                typeof item.carbs === 'number' &&
+                !Number.isNaN(item.carbs)
+            );
+            setCustomLibraryFoods(validFoods);
+          }
         }
       } catch (error) {
-        console.error('Failed to load settings', error);
-        alert('Could not load saved settings. Please check app permissions/storage and try again.');
+        console.error('Failed to load saved app data', error);
+        alert('Could not load saved settings/library. Please check app storage permissions and try again.');
       }
     };
 
-    loadSavedSettings();
+    loadSavedData();
   }, []);
 
-  const addFoodToPlate = (foodKey, isCustom = false) => {
+  const addFoodToPlate = (foodItem, isCustom = false) => {
     if (isCustom) {
       const carbsAmount = parseFloat(customCarbs);
       if (isNaN(carbsAmount) || carbsAmount <= 0 || carbsAmount > MAX_CUSTOM_CARBS) {
         alert(`Please enter a valid carbohydrate amount between 0 and ${MAX_CUSTOM_CARBS}g`);
         return;
       }
+      const cleanedCustomName = customFoodName.trim();
+      const displayName = cleanedCustomName.length > 0 ? `✏️ ${cleanedCustomName}` : '✏️ Custom Manual Food';
       setMealPlate((prevPlate) => [
         ...prevPlate,
-        { id: Date.now().toString(), name: '✏️ Custom Manual Food', carbs: carbsAmount }
+        { id: Date.now().toString(), name: displayName, carbs: carbsAmount }
       ]);
       setCustomCarbs('');
-    } else {
-      const foodItem = FOOD_DATABASE[foodKey];
-      setMealPlate((prevPlate) => [
-        ...prevPlate,
-        { id: Date.now().toString(), name: foodItem.name, carbs: foodItem.carbs }
-      ]);
-      setShowMenu(false);
+      setCustomFoodName('');
+      return;
+    }
+
+    if (!foodItem) {
+      alert('Please choose a food from the library.');
+      return;
+    }
+
+    setMealPlate((prevPlate) => [
+      ...prevPlate,
+      { id: Date.now().toString(), name: foodItem.name, carbs: foodItem.carbs }
+    ]);
+    setShowMenu(false);
+  };
+
+  const addFoodToLibrary = async () => {
+    const trimmedName = newLibraryFoodName.trim();
+    const carbsAmount = parseFloat(newLibraryFoodCarbs);
+
+    if (trimmedName.length === 0) {
+      alert('Please enter a food name.');
+      return;
+    }
+
+    if (isNaN(carbsAmount) || carbsAmount <= 0 || carbsAmount > MAX_CUSTOM_CARBS) {
+      alert(`Please enter carbs between 0 and ${MAX_CUSTOM_CARBS}g for the new food.`);
+      return;
+    }
+
+    const allExistingNames = [
+      ...Object.values(FOOD_DATABASE).map((food) => food.name.toLowerCase()),
+      ...customLibraryFoods.map((food) => food.name.toLowerCase())
+    ];
+
+    if (allExistingNames.includes(trimmedName.toLowerCase())) {
+      alert('That food name already exists in your library. Please use a different name.');
+      return;
+    }
+
+    const newFood = {
+      id: Date.now().toString(),
+      name: `🆕 ${trimmedName}`,
+      carbs: carbsAmount
+    };
+
+    const updatedFoods = [...customLibraryFoods, newFood];
+
+    try {
+      await AsyncStorage.setItem(CUSTOM_LIBRARY_STORAGE_KEY, JSON.stringify(updatedFoods));
+      setCustomLibraryFoods(updatedFoods);
+      setNewLibraryFoodName('');
+      setNewLibraryFoodCarbs('');
+      alert('New food added to your library.');
+    } catch (error) {
+      console.error('Failed to save custom library food', error);
+      alert('Could not save the new food. Please try again.');
     }
   };
 
@@ -255,8 +326,6 @@ export default function App() {
     });
 
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    // store the foods list for this entry (copy values)
     const entryFoods = mealPlate.map((item) => ({ name: item.name, carbs: item.carbs }));
 
     setHistory((prevHistory) => [{
@@ -269,6 +338,13 @@ export default function App() {
       foods: entryFoods
     }, ...prevHistory]);
   };
+
+  const baseLibraryFoods = Object.keys(FOOD_DATABASE).map((key) => ({
+    id: key,
+    name: FOOD_DATABASE[key].name,
+    carbs: FOOD_DATABASE[key].carbs
+  }));
+  const fullLibraryFoods = [...baseLibraryFoods, ...customLibraryFoods];
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
@@ -284,16 +360,17 @@ export default function App() {
       <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingTop: 15 }} keyboardShouldPersistTaps="handled">
         <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#495057', marginTop: 10, marginBottom: 8 }}>1. Add Foods to Your Meal Plate:</Text>
         <TouchableOpacity style={{ backgroundColor: '#fff', padding: 14, borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }} onPress={() => setShowMenu(!showMenu)}>
-          <Text style={{ fontSize: 14, color: '#6c757d', fontWeight: '500' }}>Tap to Open Food Library (40+ Options)...</Text>
+          <Text style={{ fontSize: 14, color: '#6c757d', fontWeight: '500' }}>Tap to Open Food Library ({fullLibraryFoods.length} Options)...</Text>
           <Text style={{ fontSize: 12, color: '#6c757d' }}>{showMenu ? '▲' : '▼'}</Text>
         </TouchableOpacity>
 
         {showMenu && (
           <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 200, overflow: 'hidden' }}>
             <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
-              {Object.keys(FOOD_DATABASE).map((key) => (
-                <TouchableOpacity key={key} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => addFoodToPlate(key)}>
-                  <Text style={{ fontSize: 14, color: '#212529' }}>{FOOD_DATABASE[key].name}</Text>
+              {fullLibraryFoods.map((foodItem) => (
+                <TouchableOpacity key={foodItem.id} style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => addFoodToPlate(foodItem)}>
+                  <Text style={{ fontSize: 14, color: '#212529', flex: 1 }}>{foodItem.name}</Text>
+                  <Text style={{ color: '#6c757d', fontSize: 13, marginRight: 8 }}>{foodItem.carbs}g</Text>
                   <Text style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 13 }}>[ADD]</Text>
                 </TouchableOpacity>
               ))}
@@ -301,17 +378,46 @@ export default function App() {
           </View>
         )}
 
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 20 }}>
+        <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 15 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Add New Food to Library</Text>
           <TextInput
-            style={{ flex: 1, backgroundColor: '#fff', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14 }}
-            keyboardType="numeric"
-            placeholder="Type custom carbs manually (g)"
-            value={customCarbs}
-            onChangeText={setCustomCarbs}
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 8 }}
+            placeholder="Food name (e.g., Chicken Wrap)"
+            value={newLibraryFoodName}
+            onChangeText={setNewLibraryFoodName}
           />
-          <TouchableOpacity style={{ backgroundColor: '#007AFF', paddingHorizontal: 15, borderRadius: 8, justifyContent: 'center', alignItems: 'center' }} onPress={() => addFoodToPlate(null, true)}>
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>Add Custom</Text>
+          <TextInput
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10 }}
+            keyboardType="numeric"
+            placeholder="Carbs per serving (grams only)"
+            value={newLibraryFoodCarbs}
+            onChangeText={setNewLibraryFoodCarbs}
+          />
+          <TouchableOpacity style={{ backgroundColor: '#17a2b8', padding: 10, borderRadius: 8, alignItems: 'center' }} onPress={addFoodToLibrary}>
+            <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>Save to Library</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 20 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Quick Custom Food for This Meal</Text>
+          <TextInput
+            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14, marginBottom: 8 }}
+            placeholder="Custom food name (optional)"
+            value={customFoodName}
+            onChangeText={setCustomFoodName}
+          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TextInput
+              style={{ flex: 1, backgroundColor: '#fff', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14 }}
+              keyboardType="numeric"
+              placeholder="Carbs (grams only)"
+              value={customCarbs}
+              onChangeText={setCustomCarbs}
+            />
+            <TouchableOpacity style={{ backgroundColor: '#007AFF', paddingHorizontal: 15, borderRadius: 8, justifyContent: 'center', alignItems: 'center' }} onPress={() => addFoodToPlate(null, true)}>
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>Add Custom</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={{ backgroundColor: '#fff', padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 20 }}>
@@ -386,7 +492,7 @@ export default function App() {
           </View>
 
           <Text style={{ fontSize: 12, color: '#6c757d', marginBottom: 8 }}>
-            Enter all fields below only when you need a correction bolus.
+            BG means Blood Glucose. Enter all fields below only when you need a correction bolus.
           </Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
             <TouchableOpacity
@@ -494,7 +600,6 @@ export default function App() {
         </View>
       </ScrollView>
 
-      {/* General Help modal */}
       <Modal visible={helpModalVisible} animationType="slide" transparent={true}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ width: '90%', backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
@@ -510,7 +615,6 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* BG Help modal */}
       <Modal visible={bgHelpVisible} animationType="fade" transparent={true}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ width: '90%', backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
