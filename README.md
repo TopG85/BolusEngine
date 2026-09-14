@@ -23,8 +23,6 @@ It is designed for:
 - Built-in food library with 40+ common items
 - Add your own foods to the library
 - Delete any food from the live library list using the trash button
-- Delete saved custom foods from the dedicated custom-food list as well
-- Custom one-off meal entry for quick carb-only additions
 - Total carb calculation across multiple foods
 - Meal-only, correction-only, and combined dose calculations
 - Supports mmol/L and mg/dL BG units

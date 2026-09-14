@@ -69,8 +69,6 @@ const isValidBgUnit = (value) => value === 'mmol' || value === 'mgdl';
 export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [ratio, setRatio] = useState('');
-  const [customCarbs, setCustomCarbs] = useState('');
-  const [customFoodName, setCustomFoodName] = useState('');
   const [mealPlate, setMealPlate] = useState([]);
   const [history, setHistory] = useState([]);
   const [roundingStep, setRoundingStep] = useState('0.5');
@@ -167,21 +165,7 @@ export default function App() {
     loadSavedData();
   }, []);
 
-  const addFoodToPlate = (foodItem, isCustom = false) => {
-    if (isCustom) {
-      const carbsAmount = parseFloat(customCarbs);
-      if (isNaN(carbsAmount) || carbsAmount <= 0 || carbsAmount > MAX_CUSTOM_CARBS) {
-        alert(`Please enter a valid carbohydrate amount between 0 and ${MAX_CUSTOM_CARBS}g`);
-        return;
-      }
-      const cleanedCustomName = customFoodName.trim();
-      const displayName = cleanedCustomName.length > 0 ? `✏️ ${cleanedCustomName}` : '✏️ Custom Manual Food';
-      setMealPlate((prevPlate) => [...prevPlate, { id: Date.now().toString(), name: displayName, carbs: carbsAmount }]);
-      setCustomCarbs('');
-      setCustomFoodName('');
-      return;
-    }
-
+  const addFoodToPlate = (foodItem) => {
     if (!foodItem) {
       alert('Please choose a food from the library.');
       return;
@@ -444,47 +428,6 @@ export default function App() {
           <TouchableOpacity style={{ backgroundColor: '#17a2b8', padding: 10, borderRadius: 8, alignItems: 'center' }} onPress={addFoodToLibrary}>
             <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>Save to Library</Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 15 }}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>My Saved Custom Foods</Text>
-          {customLibraryFoods.length === 0 ? (
-            <Text style={{ fontStyle: 'italic', color: '#868e96', fontSize: 13, marginBottom: 4 }}>No custom foods saved yet.</Text>
-          ) : (
-            customLibraryFoods.map((food) => (
-              <View key={food.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f8f9fa' }}>
-                <View style={{ flex: 1, marginRight: 8 }}>
-                  <Text style={{ fontSize: 14, color: '#212529' }}>{food.name.replace(/^🆕\s*/, '')}</Text>
-                  <Text style={{ fontSize: 12, color: '#6c757d' }}>{food.carbs}g carbs</Text>
-                </View>
-                <TouchableOpacity onPress={() => removeFoodFromLibrary(food.id)} style={{ backgroundColor: '#ffe3e3', borderWidth: 1, borderColor: '#f5c2c7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 }}>
-                  <Text style={{ color: '#b02a37', fontWeight: '700', fontSize: 12 }}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            ))
-          )}
-        </View>
-
-        <View style={{ backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', padding: 12, marginBottom: 20 }}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: '#212529', marginBottom: 8 }}>Quick Custom Food for This Meal</Text>
-          <TextInput
-            style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, fontSize: 14, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14, marginBottom: 8 }}
-            placeholder="Custom food name (optional)"
-            value={customFoodName}
-            onChangeText={setCustomFoodName}
-          />
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TextInput
-              style={{ flex: 1, backgroundColor: '#fff', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', fontSize: 14 }}
-              keyboardType="numeric"
-              placeholder="Carbs (grams only)"
-              value={customCarbs}
-              onChangeText={setCustomCarbs}
-            />
-            <TouchableOpacity style={{ backgroundColor: '#007AFF', paddingHorizontal: 15, borderRadius: 8, justifyContent: 'center', alignItems: 'center' }} onPress={() => addFoodToPlate(null, true)}>
-              <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>Add Custom</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         <View style={{ backgroundColor: '#fff', padding: 15, borderRadius: 10, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 20 }}>
