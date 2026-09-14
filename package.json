@@ -1,11 +1,14 @@
 {
+  "homepage": "https://topg_85.github.io/carb-counter-app",
   "name": "carb-counter-app",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "predeploy": "expo export -p web",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.15",
@@ -18,7 +21,8 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.0"
+    "@babel/core": "^7.25.0",
+    "gh-pages": "^6.3.0"
   },
   "private": true
 }
