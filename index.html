@@ -176,7 +176,6 @@
             background-color: #fff3cd;
             color: #856404;
             padding: 12px;
-            borderRadius: 8px;
             border-radius: 8px;
             font-size: 14px;
             margin-top: 10px;
@@ -234,7 +233,6 @@
         <label class="label">Enter Insulin-to-Carb Ratio (g/Unit):</label>
         <input type="number" id="ratio" placeholder="e.g., 10">
 
-        <!-- ADVANCED INSULIN CORRECTION DOSE REGISTRY MODULE -->
         <div class="checkbox-group">
             <input type="checkbox" id="enableCorrection" onchange="toggleCorrectionFields()">
             <label for="enableCorrection" class="label" style="margin-bottom:0; cursor:pointer;">Include Blood Glucose
@@ -273,9 +271,9 @@
         function selectFoodItem() {
             let select = document.getElementById('foodSelect');
             if (!select.value) return;
-            let name = select.options[select.selectedIndex].text.split(' [')[0];
+            let displayName = select.options[select.selectedIndex].text.split(' [')[0];
             let carbs = parseFloat(select.value);
-            plate.push({ id: Date.now(), name: name, carbs: carbs });
+            plate.push({ id: Date.now(), name: displayName, carbs: carbs });
             select.selectedIndex = 0;
             renderPlate();
         }
@@ -318,11 +316,9 @@
             if (plate.length === 0) return alert('Your plate basket is empty! Select items from the library first.');
             if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid Insulin-to-Carb ratio');
 
-            // 1. Meal Component Calculation
             let mealDose = totalCarbs / ratio;
             let correctionDose = 0;
 
-            // 2. Correction Component Calculation (if toggled active)
             let includeCorrection = document.getElementById('enableCorrection').checked;
             if (includeCorrection) {
                 let currentBG = parseFloat(document.getElementById('currentBG').value);
@@ -336,4 +332,9 @@
                 if (currentBG > targetBG) {
                     correctionDose = (currentBG - targetBG) / factor;
                 }
-            } let exactTotal = mealDose + correctionDose; let roundedDose = exactTotal.toFixed(1);// Display suggested units paneldocument.getElementById('resultContainer').innerHTML =  <div class="result-box"> <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div> <div style="font-size:14px; margin-top:4px;">Calculated Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div> <div class="result-val">${roundedDose} Units Suggestion</div> </div>;// Display high-dose safety alert barrier warning if applicablelet warningBox = document.getElementById('warningContainer');warningBox.innerHTML = exactTotal >= 12.0 ? <div class="warning-box">🚨 Safety Alert: High-Dose Threshold Crossed! Verify total parameters carefully.</div> : '';let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });historyLog.unshift({ time: time, carbs: totalCarbs, dose: roundedDose });renderLog();}function renderLog() {let log = document.getElementById('logbook');log.innerHTML = '';if (historyLog.length === 0) {log.innerHTML = 'No entries logged yet today.';} else {historyLog.forEach(entry => {log.innerHTML += <div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${entry.time}</span></div><div style="font-size:13px; color:#495057;">${entry.carbs}g combined carbs total → <span style="font-weight:bold; color:#28a745;">${entry.dose} Units</span></div></div>;});}}renderPlate();renderLog();
+            }
+
+            let exactTotal = mealDose + correctionDose;
+
+            let roundedDose = exactTotal.toFixed(1); document.getElementById('resultContainer').innerHTML = <div class="result-box"> <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div> <div style="font-size:14px; margin-top:4px;">Calculated Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div> <div class="result-val">${roundedDose} Units Suggestion</div> </div>; let warningBox = document.getElementById('warningContainer'); warningBox.innerHTML = exactTotal >= 12.0 ? <div class="warning-box">🚨 Safety Alert: High-Dose Threshold Crossed! Verify total parameters carefully.</div> : ''; let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); historyLog.unshift({ time: time, carbs: totalCarbs, dose: roundedDose }); renderLog();
+        } function renderLog() { let log = document.getElementById('logbook'); log.innerHTML = ''; if (historyLog.length === 0) { log.innerHTML = 'No entries logged yet today.'; } else { historyLog.forEach(entry => { log.innerHTML += <div class="log-card"><div class="log-row"><span style="font-weight:bold; color:#212529;">Logged Meal Entry</span><span style="color:#868e96; font-size:12px;">${entry.time}</span></div><div style="font-size:13px; color:#495057;">${entry.carbs}g combined carbs total → <span style="font-weight:bold; color:#28a745;">${entry.dose} Units</span></div></div>; }); } } renderPlate(); renderLog();
