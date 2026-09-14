@@ -365,10 +365,13 @@ export default function App() {
         </TouchableOpacity>
 
         {showMenu && (
-          <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 240, overflow: 'hidden' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 260, overflow: 'hidden' }}>
+            <View style={{ paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', backgroundColor: '#f8f9fa' }}>
+              <Text style={{ fontSize: 12, color: '#6c757d', fontWeight: '700' }}>Saved custom foods show a red Delete button.</Text>
+            </View>
             <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
               {fullLibraryFoods.map((foodItem) => (
-                <View key={foodItem.id} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View key={foodItem.id} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                   <TouchableOpacity onPress={() => addFoodToPlate(foodItem)} style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: 14, color: '#212529', flex: 1 }}>{foodItem.name}</Text>
                     <Text style={{ color: '#6c757d', fontSize: 13, marginRight: 8 }}>{foodItem.carbs}g</Text>
@@ -376,8 +379,8 @@ export default function App() {
                   </TouchableOpacity>
 
                   {foodItem.isCustom && (
-                    <TouchableOpacity onPress={() => removeFoodFromLibrary(foodItem.id)} style={{ marginLeft: 8, paddingHorizontal: 6, paddingVertical: 4 }}>
-                      <Text style={{ color: '#dc3545', fontWeight: '700', fontSize: 12 }}>Delete</Text>
+                    <TouchableOpacity onPress={() => removeFoodFromLibrary(foodItem.id)} style={{ backgroundColor: '#ffe3e3', borderWidth: 1, borderColor: '#f5c2c7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 }}>
+                      <Text style={{ color: '#b02a37', fontWeight: '700', fontSize: 12 }}>Delete</Text>
                     </TouchableOpacity>
                   )}
                 </View>
