@@ -1,717 +1,699 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carb Counter App</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            color: #212529;
-        }
-
-        .header {
-            background-color: #fff;
-            padding: 18px 20px;
-            border-bottom: 1px solid #dee2e6;
-            text-align: center;
-            position: relative;
-        }
-
-        .title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: bold;
-            color: #1a1a1a;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .section-label {
-            font-size: 15px;
-            font-weight: bold;
-            color: #495057;
-            margin-top: 20px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            background-color: #fff;
-            font-size: 16px;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-        }
-
-        .toggle-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .btn-toggle {
-            flex: 1;
-            padding: 10px;
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .btn-toggle-active {
-            background-color: #007AFF;
-            color: #fff;
-            border-color: #007AFF;
-        }
-
-        .dropdown-selector {
-            background-color: #fff;
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-
-        .dropdown-text {
-            font-size: 14px;
-            color: #495057;
-            font-weight: 500;
-        }
-
-        .scroll-window {
-            background-color: #fff;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            margin-bottom: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .menu-item {
-            padding: 12px;
-            border-bottom: 1px solid #f1f3f5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .menu-text {
-            font-size: 14px;
-            color: #212529;
-            flex: 1;
-            cursor: pointer;
-        }
-
-        .add-action {
-            color: #007AFF;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .delete-action {
-            color: #dc3545;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            margin-left: 10px;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        .custom-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .custom-row input {
-            margin-bottom: 0;
-        }
-
-        .btn-add-custom {
-            background-color: #007AFF;
-            color: #fff;
-            border: none;
-            padding: 0 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .plate-box {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #dee2e6;
-            margin-bottom: 20px;
-        }
-
-        .plate-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f8f9fa;
-        }
-
-        .plate-card:last-child {
-            border-bottom: none;
-        }
-
-        .btn-remove-plate {
-            color: #dc3545;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .btn-clear-plate {
-            font-size: 12px;
-            color: #6c757d;
-            font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        .btn-calc {
-            width: 100%;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        .btn-save-settings {
-            width: 100%;
-            background-color: #6c757d;
-            color: #fff;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .result-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e8f0fe;
-            border-radius: 8px;
-            text-align: center;
-            color: #185abc;
-        }
-
-        .result-value {
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-
-        .warning-box {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-top: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .log-card {
-            background-color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #e9ecef;
-            position: relative;
-        }
-
-        .log-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .btn-help-trigger {
-            position: absolute;
-            right: 20px;
-            top: 18px;
-            font-size: 14px;
-            color: #007AFF;
-            font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 85%;
-            box-sizing: border-box;
-        }
-
-        .btn-modal-close {
-            width: 100%;
-            background-color: #007AFF;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Multi-Select Carb Counter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #212529; }
+  #root { min-height: 100vh; }
+  input[type="text"], input[type="number"] { font-family: inherit; outline: none; }
+  input[type="text"]:focus, input[type="number"]:focus { border-color: #007AFF !important; }
+  button { font-family: inherit; cursor: pointer; border: none; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 4px; }
+</style>
 </head>
-
 <body>
+<div id="root"></div>
 
-    <div class="header">
-        <div class="title">Carb Counter App</div>
-        <button class="btn-help-trigger" onclick="openModal('helpModal')">Help</button>
-    </div>
+<script type="text/babel" data-presets="react">
+const { useEffect, useState } = React;
 
-    <div class="container">
-        <!-- GLOBAL CONFIGURATION PARAMETERS -->
-        <label class="label">Settings Profiles:</label>
-        <div class="toggle-row">
-            <button id="btnMmol" class="btn-toggle btn-toggle-active" onclick="setBgUnit('mmol')">mmol/L</button>
-            <button id="btnMgdl" class="btn-toggle" onclick="setBgUnit('mgdl')">mg/dL</button>
-            <button id="btnStep05" class="btn-toggle btn-toggle-active" onclick="setRoundingStep('0.5')">0.5
-                Step</button>
-            <button id="btnStep10" class="btn-toggle" onclick="setRoundingStep('1')">1.0 Step</button>
-        </div>
+const FOOD_DATABASE = {
+  Cappuccino: { name: '☕ Cappuccino (Large Skimmed Milk - 473ml )', carbs: 12.8 },
 
-        <!-- 1. MULTI-SELECT FOOD BASKET INTERFACE -->
-        <span class="section-label">1. Add Foods to Your Meal Plate:</span>
-        <div class="dropdown-selector" onclick="toggleLibraryMenu()">
-            <span id="dropdownLabel" class="dropdown-text">Tap to Open Food Library...</span>
-            <span id="dropdownArrow" style="font-size:12px; color:#6c757d;">▼</span>
-        </div>
+  porridgeOats: { name: '🥣 Porridge Oats (Dry - 50g)', carbs: 30 },
+  weetabix: { name: '🥣 Weetabix (2 Biscuits)', carbs: 26 },
+  cornflakes: { name: '🥣 Cornflakes (30g Bowl)', carbs: 25 },
+  muesli: { name: '🥣 Muesli (Swiss Style - 50g)', carbs: 33 },
 
-        <div id="scrollWindow" class="scroll-window" style="display: none;">
-            <div id="libraryContainer"></div>
-        </div>
+  wholeBread: { name: '🍞 Wholemeal Bread (1 Slice)', carbs: 16 },
+  whiteBread: { name: '🍞 White Bread (1 Slice)', carbs: 15 },
+  toastieSlice: { name: '🍞 Thick Toastie Bread (1 Slice)', carbs: 22 },
+  SourdoughBread: { name: '🍞 Sourdough Bread (1 Slice)', carbs: 22 },
+  crumpet: { name: '🍞 Crumpet (1 Standard)', carbs: 20 },
+  bagel: { name: '🍞 Plain Bagel (1 Whole)', carbs: 48 },
 
-        <!-- NEW FOOD REGISTRY ROW -->
-        <div class="custom-row">
-            <input type="text" id="newFoodName" placeholder="New Food Name (e.g. Sourdough)">
-            <input type="number" id="newFoodCarbs" placeholder="Carbs (g)" style="width: 110px;">
-            <button class="btn-add-custom" onclick="addFoodToLibrary()">Save to DB</button>
-        </div>
+  sweetPotato: { name: '🥔 Sweet Potato (Baked - 100g)', carbs: 21 },
+  whitePotato: { name: '🥔 White Potato (Baked - 100g)', carbs: 17 },
 
-        <!-- ACTIVE PLATE BASKET VIEW CONTAINER -->
-        <div class="plate-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <span style="font-size: 15px; font-weight: bold; color: #212529;">🛒 Your Current Plate Basket:</span>
-                <button class="btn-clear-plate" onclick="clearActivePlate()">Clear Plate</button>
+  chips: { name: '🥔 Oven Chips (Portion - 150g)', carbs: 40 },
+  whiteRice: { name: '🍚 White Rice (Cooked - 100g)', carbs: 28 },
+  pasta: { name: '🍝 White Pasta (Cooked - 100g)', carbs: 25 },
+  bakedBeans: { name: '🥫 Heinz Baked Beans (Half Can)', carbs: 22 },
+
+  banana: { name: '🍌 Banana (1 Medium)', carbs: 23 },
+  apple: { name: '🍎 Apple (1 Medium)', carbs: 15 },
+  pear: { name: '🍐 Pear (1 Medium)', carbs: 15 },
+  orange: { name: '🍊 Orange (1 Medium)', carbs: 12 },
+
+  carrot: { name: '🥕 Carrot (1 Medium)', carbs: 5 },
+  broccoli: { name: '🥦 Broccoli (100g)', carbs: 7 },
+
+  popcornPlain: { name: '🍿 Popcorn (Plain - 30g Bag)', carbs: 17 },
+  popcornSweet: { name: '🍿 Popcorn (Sweet - 100g Bag)', carbs: 69 },
+  walkersCrisps: { name: '🥔 Walkers Crisps (25g Bag)', carbs: 13 },
+  pringles: { name: '🥔 Pringles (Portion - 30g)', carbs: 16 },
+  digestive: { name: '🍪 Digestive Biscuit (1)', carbs: 9 },
+  kitkat: { name: '🍫 KitKat (2 Finger Bar)', carbs: 13 },
+  snickers: { name: '🍫 Snickers (Standard 48g)', carbs: 24 },
+};
+
+const MAX_CUSTOM_CARBS = 300;
+const MAX_RATIO = 100;
+const HIGH_DOSE_WARNING_UNITS = 20;
+const MAX_CORRECTION_FACTOR = 250;
+const BG_LIMITS = {
+  mmol: { min: 2, max: 33, unitLabel: 'mmol/L' },
+  mgdl: { min: 36, max: 600, unitLabel: 'mg/dL' }
+};
+const SETTINGS_STORAGE_KEY = 'carb-counter-settings-v1';
+const CUSTOM_LIBRARY_STORAGE_KEY = 'carb-counter-custom-library-v1';
+const HIDDEN_LIBRARY_ITEMS_STORAGE_KEY = 'carb-counter-hidden-library-items-v1';
+
+const getCorrectionFactorHelpText = (bgUnit) =>
+  bgUnit === 'mmol'
+    ? 'Correction factor = how much 1 unit lowers your BG. Example: 2 mmol/L per 1 unit means 1 unit should lower BG by about 2 mmol/L.'
+    : 'Correction factor = how much 1 unit lowers your BG. Example: 50 mg/dL per 1 unit means 1 unit should lower BG by about 50 mg/dL.';
+
+const roundToStep = (value, step) => Math.round(value / step) * step;
+const isValidRoundingStep = (value) => value === '0.5' || value === '1';
+const isValidBgUnit = (value) => value === 'mmol' || value === 'mgdl';
+
+// --- Simple storage helpers wrapping window.storage (falls back to in-memory if unavailable) ---
+const memoryFallback = {};
+async function storageGet(key) {
+  try {
+    if (window.storage && window.storage.get) {
+      const result = await window.storage.get(key, false);
+      return result ? result.value : null;
+    }
+  } catch (e) {
+    return null; // key not found or storage error
+  }
+  return Object.prototype.hasOwnProperty.call(memoryFallback, key) ? memoryFallback[key] : null;
+}
+async function storageSet(key, value) {
+  try {
+    if (window.storage && window.storage.set) {
+      await window.storage.set(key, value, false);
+      return true;
+    }
+  } catch (e) {
+    console.error('Storage error', e);
+  }
+  memoryFallback[key] = value;
+  return true;
+}
+
+function App() {
+  const [showMenu, setShowMenu] = useState(false);
+  const [ratio, setRatio] = useState('');
+  const [mealPlate, setMealPlate] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [roundingStep, setRoundingStep] = useState('0.5');
+  const [bgUnit, setBgUnit] = useState('mmol');
+  const [currentBg, setCurrentBg] = useState('');
+  const [targetBg, setTargetBg] = useState('');
+  const [correctionFactor, setCorrectionFactor] = useState('');
+  const [calculatedDose, setCalculatedDose] = useState(null);
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
+  const [bgHelpVisible, setBgHelpVisible] = useState(false);
+  const [customLibraryFoods, setCustomLibraryFoods] = useState([]);
+  const [hiddenLibraryItemIds, setHiddenLibraryItemIds] = useState([]);
+  const [newLibraryFoodName, setNewLibraryFoodName] = useState('');
+  const [newLibraryFoodCarbs, setNewLibraryFoodCarbs] = useState('');
+  const [loaded, setLoaded] = useState(false);
+
+  const removeHistoryEntry = (id) => {
+    setHistory((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const removeFoodFromLibrary = async (foodId, isCustomFood) => {
+    const updatedHiddenList = Array.from(new Set([...hiddenLibraryItemIds, foodId]));
+    setHiddenLibraryItemIds(updatedHiddenList);
+
+    if (isCustomFood) {
+      const updatedFoods = customLibraryFoods.filter((food) => food.id !== foodId);
+      setCustomLibraryFoods(updatedFoods);
+      try {
+        await Promise.all([
+          storageSet(CUSTOM_LIBRARY_STORAGE_KEY, JSON.stringify(updatedFoods)),
+          storageSet(HIDDEN_LIBRARY_ITEMS_STORAGE_KEY, JSON.stringify(updatedHiddenList))
+        ]);
+      } catch (error) {
+        console.error('Failed to remove saved custom food', error);
+        alert('Could not remove that food from the library. Please try again.');
+      }
+      return;
+    }
+
+    try {
+      await storageSet(HIDDEN_LIBRARY_ITEMS_STORAGE_KEY, JSON.stringify(updatedHiddenList));
+    } catch (error) {
+      console.error('Failed to hide library food', error);
+      alert('Could not remove that food from the library. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    const loadSavedData = async () => {
+      try {
+        const [rawSettings, rawCustomLibrary, rawHiddenLibraryItems] = await Promise.all([
+          storageGet(SETTINGS_STORAGE_KEY),
+          storageGet(CUSTOM_LIBRARY_STORAGE_KEY),
+          storageGet(HIDDEN_LIBRARY_ITEMS_STORAGE_KEY)
+        ]);
+
+        if (rawSettings) {
+          const parsed = JSON.parse(rawSettings);
+          if (typeof parsed.ratio === 'string') setRatio(parsed.ratio);
+          if (typeof parsed.roundingStep === 'string' && isValidRoundingStep(parsed.roundingStep)) setRoundingStep(parsed.roundingStep);
+          if (typeof parsed.bgUnit === 'string' && isValidBgUnit(parsed.bgUnit)) setBgUnit(parsed.bgUnit);
+          if (typeof parsed.targetBg === 'string') setTargetBg(parsed.targetBg);
+          if (typeof parsed.correctionFactor === 'string') setCorrectionFactor(parsed.correctionFactor);
+        }
+
+        if (rawCustomLibrary) {
+          const parsedFoods = JSON.parse(rawCustomLibrary);
+          if (Array.isArray(parsedFoods)) {
+            const validFoods = parsedFoods.filter(
+              (item) =>
+                item &&
+                typeof item.id === 'string' &&
+                typeof item.name === 'string' &&
+                typeof item.carbs === 'number' &&
+                !Number.isNaN(item.carbs)
+            );
+            setCustomLibraryFoods(validFoods);
+          }
+        }
+
+        if (rawHiddenLibraryItems) {
+          const parsedHidden = JSON.parse(rawHiddenLibraryItems);
+          if (Array.isArray(parsedHidden)) {
+            const validHidden = parsedHidden.filter((item) => typeof item === 'string');
+            setHiddenLibraryItemIds(validHidden);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load saved app data', error);
+      } finally {
+        setLoaded(true);
+      }
+    };
+
+    loadSavedData();
+  }, []);
+
+  const addFoodToPlate = (foodItem) => {
+    if (!foodItem) {
+      alert('Please choose a food from the library.');
+      return;
+    }
+    setMealPlate((prevPlate) => [...prevPlate, { id: Date.now().toString() + Math.random().toString(36).slice(2), name: foodItem.name, carbs: foodItem.carbs }]);
+    setShowMenu(false);
+  };
+
+  const addFoodToLibrary = async () => {
+    const trimmedName = newLibraryFoodName.trim();
+    const carbsAmount = parseFloat(newLibraryFoodCarbs);
+
+    if (trimmedName.length === 0) {
+      alert('Please enter a food name.');
+      return;
+    }
+
+    if (isNaN(carbsAmount) || carbsAmount <= 0 || carbsAmount > MAX_CUSTOM_CARBS) {
+      alert(`Please enter carbs between 0 and ${MAX_CUSTOM_CARBS}g for the new food.`);
+      return;
+    }
+
+    const allExistingNames = [
+      ...Object.values(FOOD_DATABASE).map((food) => food.name.toLowerCase()),
+      ...customLibraryFoods.map((food) => food.name.toLowerCase())
+    ];
+
+    if (allExistingNames.includes(trimmedName.toLowerCase())) {
+      alert('That food name already exists in your library. Please use a different name.');
+      return;
+    }
+
+    const newFood = {
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
+      name: `🆕 ${trimmedName}`,
+      carbs: carbsAmount
+    };
+
+    const updatedFoods = [...customLibraryFoods, newFood];
+
+    try {
+      await storageSet(CUSTOM_LIBRARY_STORAGE_KEY, JSON.stringify(updatedFoods));
+      setCustomLibraryFoods(updatedFoods);
+      setNewLibraryFoodName('');
+      setNewLibraryFoodCarbs('');
+      alert('New food added to your library.');
+    } catch (error) {
+      console.error('Failed to save custom library food', error);
+      alert('Could not save the new food. Please try again.');
+    }
+  };
+
+  const removeFoodFromPlate = (id) => {
+    setMealPlate((prevPlate) => prevPlate.filter((item) => item.id !== id));
+    setCalculatedDose(null);
+  };
+
+  const clearPlate = () => {
+    setMealPlate([]);
+    setCalculatedDose(null);
+  };
+
+  const savePersonalSettings = async () => {
+    const parsedRatio = ratio === '' ? null : parseFloat(ratio);
+    const parsedTargetBg = targetBg === '' ? null : parseFloat(targetBg);
+    const parsedCorrectionFactor = correctionFactor === '' ? null : parseFloat(correctionFactor);
+    const selectedLimits = BG_LIMITS[bgUnit];
+
+    if (parsedRatio !== null && (isNaN(parsedRatio) || parsedRatio <= 0 || parsedRatio > MAX_RATIO)) {
+      alert(`Please enter a valid Insulin-to-Carb Ratio between 1 and ${MAX_RATIO} before saving.`);
+      return;
+    }
+
+    if (parsedTargetBg !== null && (isNaN(parsedTargetBg) || parsedTargetBg < selectedLimits.min || parsedTargetBg > selectedLimits.max)) {
+      alert(`Target BG must be between ${selectedLimits.min} and ${selectedLimits.max} ${selectedLimits.unitLabel}.`);
+      return;
+    }
+
+    if (parsedCorrectionFactor !== null && (isNaN(parsedCorrectionFactor) || parsedCorrectionFactor <= 0 || parsedCorrectionFactor > MAX_CORRECTION_FACTOR)) {
+      alert(`Correction factor must be between 0 and ${MAX_CORRECTION_FACTOR}.`);
+      return;
+    }
+
+    const settingsToSave = { ratio, roundingStep, bgUnit, targetBg, correctionFactor };
+
+    try {
+      await storageSet(SETTINGS_STORAGE_KEY, JSON.stringify(settingsToSave));
+      alert('Personal settings saved. They will load automatically next time.');
+    } catch (error) {
+      console.error('Failed to save settings', error);
+      alert('Could not save settings. Please try again.');
+    }
+  };
+
+  const totalCarbsOnPlate = mealPlate.reduce((sum, item) => sum + item.carbs, 0);
+
+  const calculateTotalMealDose = () => {
+    const hasMealInput = mealPlate.length > 0;
+    const hasCorrectionInput = currentBg !== '' || targetBg !== '' || correctionFactor !== '';
+
+    if (!hasMealInput && !hasCorrectionInput) {
+      alert('Add some food or enter BG correction details before calculating.');
+      return;
+    }
+
+    const insulinRatio = parseFloat(ratio);
+    const mealDose = hasMealInput ? totalCarbsOnPlate / insulinRatio : 0;
+    let correctionDose = 0;
+    let isBelowOrAtTarget = false;
+
+    if (hasMealInput && (isNaN(insulinRatio) || insulinRatio <= 0 || insulinRatio > MAX_RATIO)) {
+      alert(`Please enter a valid Insulin-to-Carb Ratio between 1 and ${MAX_RATIO}`);
+      return;
+    }
+
+    if (hasCorrectionInput) {
+      const currentBgValue = parseFloat(currentBg);
+      const targetBgValue = parseFloat(targetBg);
+      const correctionFactorValue = parseFloat(correctionFactor);
+      const selectedLimits = BG_LIMITS[bgUnit];
+
+      if (isNaN(currentBgValue) || isNaN(targetBgValue) || isNaN(correctionFactorValue)) {
+        alert('For correction dose, enter valid numbers for current BG, target BG, and correction factor.');
+        return;
+      }
+
+      if (
+        currentBgValue < selectedLimits.min ||
+        currentBgValue > selectedLimits.max ||
+        targetBgValue < selectedLimits.min ||
+        targetBgValue > selectedLimits.max
+      ) {
+        alert(`BG values must be between ${selectedLimits.min} and ${selectedLimits.max} ${selectedLimits.unitLabel}.`);
+        return;
+      }
+
+      if (correctionFactorValue <= 0 || correctionFactorValue > MAX_CORRECTION_FACTOR) {
+        alert(`Correction factor must be between 0 and ${MAX_CORRECTION_FACTOR}.`);
+        return;
+      }
+
+      const difference = currentBgValue - targetBgValue;
+      isBelowOrAtTarget = difference <= 0;
+      correctionDose = isBelowOrAtTarget ? 0 : difference / correctionFactorValue;
+    }
+
+    const doseStep = parseFloat(roundingStep);
+    const exactDose = mealDose + correctionDose;
+    const roundedDose = roundToStep(exactDose, doseStep);
+    const finalDoseString = `${roundedDose.toFixed(1)} Units`;
+
+    setCalculatedDose({
+      mealDose: mealDose.toFixed(2),
+      correctionDose: correctionDose.toFixed(2),
+      exactDose: exactDose.toFixed(2),
+      roundedDose: roundedDose.toFixed(1),
+      step: doseStep,
+      correctionUsed: hasCorrectionInput,
+      belowOrAtTarget: isBelowOrAtTarget
+    });
+
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const entryFoods = mealPlate.map((item) => ({ name: item.name, carbs: item.carbs }));
+
+    setHistory((prevHistory) => [{
+      id: Date.now().toString() + Math.random().toString(36).slice(2),
+      time: currentTime,
+      totalCarbs: totalCarbsOnPlate.toFixed(1),
+      dose: finalDoseString,
+      mealDose: mealDose.toFixed(1),
+      correctionDose: correctionDose.toFixed(1),
+      foods: entryFoods
+    }, ...prevHistory]);
+  };
+
+  const baseLibraryFoods = Object.keys(FOOD_DATABASE).map((key) => ({
+    id: key,
+    name: FOOD_DATABASE[key].name,
+    carbs: FOOD_DATABASE[key].carbs,
+    isCustom: false
+  }));
+  const fullLibraryFoods = [...baseLibraryFoods, ...customLibraryFoods.map((food) => ({ ...food, isCustom: true }))]
+    .filter((food) => !hiddenLibraryItemIds.includes(food.id));
+
+  if (!loaded) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6c757d' }}>
+        Loading…
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f8f9fa', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: '#fff', padding: '20px 20px 15px', borderBottom: '1px solid #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' }}>Multi-Select Carb Counter</span>
+        <button onClick={() => setHelpModalVisible(true)} style={{ background: 'none', padding: 6, color: '#6c757d', fontWeight: 700, fontSize: 14 }}>
+          Help
+        </button>
+      </div>
+
+      <div style={{ flex: 1, padding: '15px 20px 40px', maxWidth: 640, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+        <div style={{ fontSize: 15, fontWeight: 'bold', color: '#495057', marginTop: 10, marginBottom: 8 }}>1. Add Foods to Your Meal Plate:</div>
+
+        <button
+          onClick={() => setShowMenu(!showMenu)}
+          style={{ width: '100%', background: '#fff', padding: 14, borderRadius: 8, border: '1px solid #dee2e6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}
+        >
+          <span style={{ fontSize: 14, color: '#6c757d', fontWeight: 500 }}>Tap to Open Food Library ({fullLibraryFoods.length} Options)...</span>
+          <span style={{ fontSize: 12, color: '#6c757d' }}>{showMenu ? '▲' : '▼'}</span>
+        </button>
+
+        {showMenu && (
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #dee2e6', marginBottom: 10, height: 280, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '8px 10px', borderBottom: '1px solid #f1f3f5', background: '#f8f9fa' }}>
+              <span style={{ fontSize: 12, color: '#6c757d', fontWeight: 700 }}>Custom items have a trash button beside them.</span>
             </div>
-            <div id="plateBasket"></div>
-            <div
-                style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 2px solid #dee2e6; font-weight: bold;">
-                <span>Total Combined Carbs:</span>
-                <span id="totalCarbsLabel" style="color:#007AFF;">0g</span>
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {fullLibraryFoods.map((foodItem) => (
+                <div key={foodItem.id} style={{ padding: 10, borderBottom: '1px solid #f1f3f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <button
+                    onClick={() => addFoodToPlate(foodItem)}
+                    style={{ flex: 1, background: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', padding: 0 }}
+                  >
+                    <span style={{ fontSize: 14, color: '#212529', flex: 1 }}>{foodItem.name}</span>
+                    <span style={{ color: '#6c757d', fontSize: 13, marginRight: 8 }}>{foodItem.carbs}g</span>
+                    <span style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 13 }}>[ADD]</span>
+                  </button>
+
+                  <button
+                    onClick={() => removeFoodFromLibrary(foodItem.id, foodItem.isCustom)}
+                    style={{ background: '#dc3545', borderRadius: 8, padding: '8px 10px', minWidth: 76, color: '#fff', fontWeight: 800, fontSize: 12 }}
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
+              ))}
             </div>
+          </div>
+        )}
+
+        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #dee2e6', padding: 12, marginBottom: 15 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#212529', marginBottom: 8 }}>Add New Food to Library</div>
+          <input
+            type="text"
+            style={{ width: '100%', background: '#fff', padding: 10, borderRadius: 8, fontSize: 14, border: '1px solid #dee2e6', marginBottom: 8 }}
+            placeholder="Food name (e.g., Chicken Wrap)"
+            value={newLibraryFoodName}
+            onChange={(e) => setNewLibraryFoodName(e.target.value)}
+          />
+          <input
+            type="number"
+            style={{ width: '100%', background: '#fff', padding: 10, borderRadius: 8, fontSize: 14, border: '1px solid #dee2e6', marginBottom: 10 }}
+            placeholder="Carbs per serving (grams only)"
+            value={newLibraryFoodCarbs}
+            onChange={(e) => setNewLibraryFoodCarbs(e.target.value)}
+          />
+          <button style={{ width: '100%', background: '#17a2b8', padding: 10, borderRadius: 8, color: '#fff', fontSize: 14, fontWeight: 'bold' }} onClick={addFoodToLibrary}>
+            Save to Library
+          </button>
         </div>
 
-        <!-- RATIO CONTROLLER -->
-        <div style="margin-bottom: 15px;">
-            <label class="label">Enter Insulin-to-Carb Ratio (g/Unit):</label>
-            <input type="number" id="ratio" placeholder="e.g., 10">
-        </div>
+        <div style={{ background: '#fff', padding: 15, borderRadius: 10, border: '1px solid #dee2e6', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+            <span style={{ fontSize: 15, fontWeight: 'bold', color: '#212529' }}>🛒 Your Current Plate Basket:</span>
+          </div>
 
-        <!-- 2. CORRECTION MATRIX FIELDS -->
-        <span class="section-label">2. Blood Glucose Correction Inputs (Optional):</span>
-        <div style="margin-top: 10px;">
-            <label id="lblCurrentBg" class="label">Current Blood Glucose:</label>
-            <input type="number" step="0.1" id="currentBg" placeholder="Current BG">
-
-            <label id="lblTargetBg" class="label">Target Blood Glucose:</label>
-            <input type="number" step="0.1" id="targetBg" placeholder="e.g., 6.0">
-
-            <label id="lblFactor" class="label">Correction Factor / Insulin Sensitivity:</label>
-            <input type="number" step="0.1" id="factor" placeholder="e.g., 2.0">
-            <div id="factorHelpText"
-                style="font-size: 12px; color: #6c757d; margin-top: -10px; margin-bottom: 15px; line-height: 1.4;">
+          {mealPlate.length === 0 ? (
+            <div style={{ fontStyle: 'italic', color: '#868e96', fontSize: 13, textAlign: 'center', margin: '10px 0' }}>
+              Your plate is empty. Add multiple items from the library above!
             </div>
+          ) : (
+            mealPlate.map((item) => (
+              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f8f9fa' }}>
+                <span style={{ fontSize: 14, color: '#495057', flex: 1 }}>{item.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#212529' }}>{item.carbs}g</span>
+                  <button onClick={() => removeFoodFromPlate(item.id)} style={{ background: 'none', color: '#dc3545', fontWeight: 'bold', fontSize: 12 }}>
+                    [REMOVE]
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+
+          {mealPlate.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '2px solid #dee2e6' }}>
+              <span style={{ fontSize: 14, fontWeight: 'bold', color: '#212529' }}>Total Combined Carbs:</span>
+              <span style={{ fontSize: 16, fontWeight: 'bold', color: '#007AFF' }}>{totalCarbsOnPlate}g</span>
+            </div>
+          )}
+          {mealPlate.length > 0 && (
+            <div style={{ textAlign: 'right', marginTop: 12 }}>
+              <button onClick={clearPlate} style={{ background: 'none', color: '#dc3545', fontWeight: 600, fontSize: 13 }}>
+                Clear Plate
+              </button>
+            </div>
+          )}
         </div>
 
-        <!-- ACTIONS -->
-        <button class="btn-calc" onclick="calculateTotalDose()">Calculate Dose</button>
-        <button class="btn-save-settings" onclick="savePersonalSettings()">💾 Save My Personal Settings</button>
-
-        <!-- OUTPUT RENDER TARGET PANELS -->
-        <div id="resultPanel" class="result-panel" style="display: none;"></div>
-        <div id="warningPanel" style="display: none;"></div>
-
-        <!-- LOGBOOK REGISTRY PANEL -->
-        <span class="section-label">Today's Historical Logbook:</span>
-        <div id="logbookPanel" style="margin-top: 10px; margin-bottom: 40px;"></div>
-    </div>
-
-    <!-- HELP POPUP MODAL -->
-    <div id="helpModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0; margin-bottom:12px;">App Guidance Panel</h3>
-            <p style="font-size:14px; line-height:1.5; color:#495057;">
-                <strong>BG</strong> = Current Blood Glucose reading.<br><br>
-                <strong>Ratio</strong> = Grams of carbohydrates covered by 1 unit of insulin.<br><br>
-                <strong>Correction Factor</strong> = How much 1 unit of insulin will reduce your blood glucose levels.
-            </p>
-            <button class="btn-modal-close" onclick="closeModal('helpModal')">Close Help Info</button>
+        <div style={{ marginBottom: 15 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#495057', marginBottom: 6 }}>Enter Insulin-to-Carb Ratio (g/Unit):</div>
+          <input
+            type="number"
+            style={{ width: '100%', background: '#fff', padding: 12, borderRadius: 8, fontSize: 16, border: '1px solid #dee2e6' }}
+            placeholder="e.g., 10"
+            value={ratio}
+            onChange={(e) => setRatio(e.target.value)}
+          />
         </div>
+
+        <div style={{ marginBottom: 15 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#495057', marginBottom: 6 }}>Dose Rounding Step:</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              style={{ background: roundingStep === '0.5' ? '#007AFF' : '#fff', border: '1px solid #dee2e6', borderRadius: 8, padding: '10px 14px', color: roundingStep === '0.5' ? '#fff' : '#212529', fontWeight: 600 }}
+              onClick={() => setRoundingStep('0.5')}
+            >
+              0.5 Unit
+            </button>
+            <button
+              style={{ background: roundingStep === '1' ? '#007AFF' : '#fff', border: '1px solid #dee2e6', borderRadius: 8, padding: '10px 14px', color: roundingStep === '1' ? '#fff' : '#212529', fontWeight: 600 }}
+              onClick={() => setRoundingStep('1')}
+            >
+              1.0 Unit
+            </button>
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #dee2e6', padding: 12, marginBottom: 15 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#212529' }}>Optional BG Correction Dose</span>
+            <button onClick={() => setBgHelpVisible(true)} style={{ background: 'none', padding: 6, color: '#007AFF', fontWeight: 700 }}>?</button>
+          </div>
+
+          <div style={{ fontSize: 12, color: '#6c757d', marginBottom: 8 }}>
+            BG means Blood Glucose. Enter all fields below only when you need a correction bolus.
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <button
+              style={{ background: bgUnit === 'mmol' ? '#007AFF' : '#fff', border: '1px solid #dee2e6', borderRadius: 8, padding: '8px 12px', color: bgUnit === 'mmol' ? '#fff' : '#212529', fontWeight: 600 }}
+              onClick={() => setBgUnit('mmol')}
+            >
+              mmol/L
+            </button>
+            <button
+              style={{ background: bgUnit === 'mgdl' ? '#007AFF' : '#fff', border: '1px solid #dee2e6', borderRadius: 8, padding: '8px 12px', color: bgUnit === 'mgdl' ? '#fff' : '#212529', fontWeight: 600 }}
+              onClick={() => setBgUnit('mgdl')}
+            >
+              mg/dL
+            </button>
+          </div>
+          <input
+            type="number"
+            style={{ width: '100%', background: '#fff', padding: 10, borderRadius: 8, fontSize: 14, border: '1px solid #dee2e6', marginBottom: 8 }}
+            placeholder={`Current BG (${BG_LIMITS[bgUnit].unitLabel})`}
+            value={currentBg}
+            onChange={(e) => setCurrentBg(e.target.value)}
+          />
+          <input
+            type="number"
+            style={{ width: '100%', background: '#fff', padding: 10, borderRadius: 8, fontSize: 14, border: '1px solid #dee2e6', marginBottom: 8 }}
+            placeholder={`Target BG (${BG_LIMITS[bgUnit].unitLabel})`}
+            value={targetBg}
+            onChange={(e) => setTargetBg(e.target.value)}
+          />
+          <input
+            type="number"
+            style={{ width: '100%', background: '#fff', padding: 10, borderRadius: 8, fontSize: 14, border: '1px solid #dee2e6' }}
+            placeholder={`Correction factor (${BG_LIMITS[bgUnit].unitLabel} per 1 unit)`}
+            value={correctionFactor}
+            onChange={(e) => setCorrectionFactor(e.target.value)}
+          />
+          <div style={{ fontSize: 11, color: '#6c757d', marginTop: 8, lineHeight: '16px' }}>
+            {getCorrectionFactorHelpText(bgUnit)}
+          </div>
+        </div>
+
+        <button
+          style={{ width: '100%', background: '#6f42c1', padding: 12, borderRadius: 8, color: '#fff', fontSize: 14, fontWeight: 'bold', marginBottom: 15 }}
+          onClick={savePersonalSettings}
+        >
+          Save My Personal Settings
+        </button>
+
+        <button style={{ width: '100%', background: '#28a745', padding: 14, borderRadius: 8, color: '#fff', fontSize: 16, fontWeight: 'bold', marginTop: 5 }} onClick={calculateTotalMealDose}>
+          Calculate Dose
+        </button>
+
+        {calculatedDose && (
+          <div style={{ marginTop: 20, padding: 15, background: '#e8f0fe', borderRadius: 8, textAlign: 'center' }}>
+            <div style={{ fontSize: 14, color: '#185abc' }}>Suggested Combined Dose (rounded to {calculatedDose.step}):</div>
+            <div style={{ fontSize: 26, fontWeight: 'bold', color: '#185abc', marginTop: 2 }}>{calculatedDose.roundedDose} Units</div>
+            <div style={{ fontSize: 12, color: '#495057', marginTop: 4 }}>Meal dose: {calculatedDose.mealDose} Units</div>
+            <div style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>Correction dose: {calculatedDose.correctionDose} Units</div>
+            <div style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>Exact total: {calculatedDose.exactDose} Units</div>
+            {calculatedDose.correctionUsed && calculatedDose.belowOrAtTarget && (
+              <div style={{ fontSize: 12, color: '#b26a00', marginTop: 6 }}>
+                Current BG is at or below target. Correction dose was set to 0.
+              </div>
+            )}
+            {parseFloat(calculatedDose.roundedDose) >= HIGH_DOSE_WARNING_UNITS && (
+              <div style={{ fontSize: 12, color: '#dc3545', marginTop: 6 }}>
+                High-dose result detected. Double-check carbs and ratio before dosing.
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{ fontSize: 15, fontWeight: 'bold', color: '#495057', marginTop: 20, marginBottom: 10 }}>Today's Historical Logbook:</div>
+        <div style={{ marginTop: 5, marginBottom: 40 }}>
+          {history.length === 0 ? (
+            <div style={{ fontStyle: 'italic', color: '#868e96', fontSize: 13, textAlign: 'center', margin: '10px 0' }}>
+              No doses calculated yet.
+            </div>
+          ) : (
+            history.map((entry) => (
+              <div key={entry.id} style={{ background: '#fff', padding: 12, borderRadius: 8, marginBottom: 8, border: '1px solid #e9ecef' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 'bold', color: '#212529' }}>{entry.time}</span>
+                  <span style={{ fontSize: 13, color: '#495057' }}>{entry.totalCarbs}g carbs</span>
+                </div>
+                <div style={{ fontSize: 13, color: '#185abc' }}>Dose: {entry.dose}</div>
+                <div style={{ fontSize: 12, color: '#495057', marginTop: 2 }}>
+                  Meal {entry.mealDose}u + Correction {entry.correctionDose}u
+                </div>
+
+                {entry.foods && entry.foods.length > 0 && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#212529' }}>Foods:</div>
+                    {entry.foods.map((f, i) => (
+                      <div key={i} style={{ fontSize: 12, color: '#495057' }}>• {f.name} — {f.carbs}g</div>
+                    ))}
+                  </div>
+                )}
+
+                <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                  <button onClick={() => removeHistoryEntry(entry.id)} style={{ background: 'none', padding: '6px 10px', color: '#dc3545', fontWeight: 700 }}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {helpModalVisible && (
+        <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', zIndex: 1000 }} onClick={() => setHelpModalVisible(false)}>
+          <div style={{ width: '90%', maxWidth: 480, background: '#fff', borderRadius: 8, padding: 16 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Help — Terms</div>
+            <p style={{ marginBottom: 6 }}>BG = Blood Glucose level (your current blood sugar reading).</p>
+            <p style={{ marginBottom: 6 }}>Insulin-to-Carb Ratio = how many grams of carbs are covered by 1 unit of insulin (e.g., 10 means 1U per 10g carbs).</p>
+            <p style={{ marginBottom: 6 }}>Correction factor = how much 1 unit of insulin lowers your blood glucose. Example: a factor of 2 mmol/L per 1 unit means 1 unit should reduce your BG by about 2 mmol/L (or about 35 mg/dL if using mg/dL).</p>
+            <p style={{ marginBottom: 6 }}>Meal dose = insulin needed to cover carbs. Correction dose = insulin to bring high BG back toward target.</p>
+            <p style={{ marginBottom: 6 }}>Example: if your BG is 12 mmol/L and target is 6 mmol/L, and your factor is 2 mmol/L per 1 unit, the correction is (12 - 6) / 2 = 3 units.</p>
+            <div style={{ textAlign: 'right', marginTop: 12 }}>
+              <button onClick={() => setHelpModalVisible(false)} style={{ background: 'none', color: '#007AFF', fontWeight: 700 }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {bgHelpVisible && (
+        <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', zIndex: 1000 }} onClick={() => setBgHelpVisible(false)}>
+          <div style={{ width: '90%', maxWidth: 480, background: '#fff', borderRadius: 8, padding: 16 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>What does BG mean?</div>
+            <p style={{ marginBottom: 6 }}>BG stands for Blood Glucose — your current blood sugar measurement. Use the same units your meter shows (mmol/L or mg/dL).</p>
+            <p style={{ marginBottom: 6 }}>If your current BG is at or below your chosen target, the correction dose will be set to zero to avoid hypoglycaemia risk.</p>
+            <div style={{ textAlign: 'right', marginTop: 12 }}>
+              <button onClick={() => setBgHelpVisible(false)} style={{ background: 'none', color: '#007AFF', fontWeight: 700 }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-    <script>
-        const BASE_FOOD_DATABASE = {
-            Cappuccino: { name: '☕ Cappuccino (Large Skimmed Milk)', carbs: 12.8 },
-            porridgeOats: { name: '🥣 Porridge Oats (Dry - 50g)', carbs: 30 },
-            weetabix: { name: '🥣 Weetabix (2 Biscuits)', carbs: 26 },
-            cornflakes: { name: '🥣 Cornflakes (30g Bowl)', carbs: 25 },
-            muesli: { name: '🥣 Muesli (Swiss Style - 50g)', carbs: 33 },
-            wholeBread: { name: '🍞 Wholemeal Bread (1 Slice)', carbs: 16 },
-            whiteBread: { name: '🍞 White Bread (1 Slice)', carbs: 15 },
-            toastieSlice: { name: '🍞 Thick Toastie Bread (1 Slice)', carbs: 22 },
-            SourdoughBread: { name: '🍞 Sourdough Bread (1 Slice)', carbs: 22 },
-            crumpet: { name: '🍞 Crumpet (1 Standard)', carbs: 20 },
-            bagel: { name: '🍞 Plain Bagel (1 Whole)', carbs: 48 },
-            sweetPotato: { name: '🥔 Sweet Potato (Baked - 100g)', carbs: 21 },
-            whitePotato: { name: '🥔 White Potato (Baked - 100g)', carbs: 17 },
-            chips: { name: '🥔 Oven Chips (Portion - 150g)', carbs: 40 },
-            whiteRice: { name: '🍚 White Rice (Cooked - 100g)', carbs: 28 },
-            pasta: { name: '🍝 White Pasta (Cooked - 100g)', carbs: 25 },
-            bakedBeans: { name: '🥫 Heinz Baked Beans (Half Can)', carbs: 22 },
-            banana: { name: '🍌 Banana (1 Medium)', carbs: 23 },
-            apple: { name: '🍎 Apple (1 Medium)', carbs: 15 },
-            pear: { name: '🍐 Pear (1 Medium)', carbs: 15 },
-            orange: { name: '🍊 Orange (1 Medium)', carbs: 12 },
-            carrot: { name: '🥕 Carrot (1 Medium)', carbs: 5 },
-            broccoli: { name: '🥦 Broccoli (100g)', carbs: 7 },
-            popcornPlain: { name: '🍿 Popcorn (Plain - 30g Bag)', carbs: 17 },
-            popcornSweet: { name: '🍿 Popcorn (Sweet - 100g Bag)', carbs: 69 },
-            walkersCrisps: { name: '🥔 Walkers Crisps (25g Bag)', carbs: 13 },
-            pringles: { name: '🥔 Pringles (Portion - 30g)', carbs: 16 },
-            digestive: { name: '🍪 Digestive Biscuit (1)', carbs: 9 },
-            kitkat: { name: '🍫 KitKat (2 Finger Bar)', carbs: 13 },
-            snickers: { name: '🍫 Snickers (Standard 48g)', carbs: 24 }
-        };
+  );
+}
 
-        const MAX_CUSTOM_CARBS = 300;
-        const HIGH_DOSE_WARNING_UNITS = 20;
-
-        let activePlate = [];
-        let historyLog = [];
-        let customLibrary = JSON.parse(localStorage.getItem('carb-counter-custom-library-v1')) || [];
-        let hiddenLibraryIds = JSON.parse(localStorage.getItem('carb-counter-hidden-library-items-v1')) || [];
-        let bgUnit = 'mmol';
-        let roundingStep = '0.5';
-
-        function loadSavedDefaults() {
-            let saved = JSON.parse(localStorage.getItem('carb-counter-settings-v1'));
-            if (saved) {
-                if (saved.ratio) document.getElementById('ratio').value = saved.ratio;
-                if (saved.targetBg) document.getElementById('targetBg').value = saved.targetBg;
-                if (saved.correctionFactor) document.getElementById('factor').value = saved.correctionFactor;
-                if (saved.roundingStep) setRoundingStep(saved.roundingStep);
-                if (saved.bgUnit) setBgUnit(saved.bgUnit);
-            } else {
-                updateViewLabels();
-            }
-            renderLibraryMenu();
-            updatePlateView();
-            renderLogbook();
-        }
-
-        function updateViewLabels() {
-            let label = bgUnit === 'mmol' ? 'mmol/L' : 'mg/dL';
-            document.getElementById('lblCurrentBg').innerText = `Current Blood Glucose (${label}):`;
-            document.getElementById('lblTargetBg').innerText = `Target Blood Glucose (${label}):`;
-            document.getElementById('lblFactor').innerText = `Correction Factor / Insulin Sensitivity (${label}):`;
-            document.getElementById('currentBg').placeholder = `Current BG (${label})`;
-            document.getElementById('targetBg').placeholder = `Target BG (${label})`;
-            document.getElementById('factor').placeholder = `Correction factor (${label} per 1 unit)`;
-
-            document.getElementById('factorHelpText').innerText = bgUnit === 'mmol'
-                ? 'Correction factor = how much 1 unit lowers your BG. Example: 2 mmol/L per 1 unit means 1 unit should lower BG by about 2 mmol/L.'
-                : 'Correction factor = how much 1 unit lowers your BG. Example: 50 mg/dL per 1 unit means 1 unit should lower BG by about 50 mg/dL.';
-        }
-
-        function setBgUnit(unit) {
-            bgUnit = unit;
-            document.getElementById('btnMmol').className = unit === 'mmol' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
-            document.getElementById('btnMgdl').className = unit === 'mgdl' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
-            updateViewLabels();
-        }
-
-        function setRoundingStep(step) {
-            roundingStep = step;
-            document.getElementById('btnStep05').className = step === '0.5' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
-            document.getElementById('btnStep10').className = step === '1' ? 'btn-toggle btn-toggle-active' : 'btn-toggle';
-        }
-
-        function toggleLibraryMenu() {
-            let win = document.getElementById('scrollWindow');
-            let arrow = document.getElementById('dropdownArrow');
-            win.style.display = win.style.display === 'none' ? 'block' : 'none';
-            arrow.innerText = win.style.display === 'none' ? '▼' : '▲';
-        }
-
-        function renderLibraryMenu() {
-            let container = document.getElementById('libraryContainer');
-            container.innerHTML = '';
-
-            let baseItems = Object.keys(BASE_FOOD_DATABASE).map(k => ({ id: k, name: BASE_FOOD_DATABASE[k].name, carbs: BASE_FOOD_DATABASE[k].carbs, isCustom: false }));
-            let customItems = customLibrary.map(i => ({ id: i.id, name: i.name, carbs: i.carbs, isCustom: true }));
-            let fullList = [...baseItems, ...customItems].filter(item => !hiddenLibraryIds.includes(item.id));
-
-            document.getElementById('dropdownLabel').innerText = `Tap to Open Food Library (${fullList.length} Options)...`;
-
-            fullList.forEach(item => {
-                let div = document.createElement('div');
-                div.className = 'menu-item';
-
-                let textSpan = document.createElement('span');
-                textSpan.className = 'menu-text';
-                textSpan.innerText = `${item.name} (${item.carbs}g)`;
-                textSpan.onclick = () => addItemToPlate(item.name, item.carbs);
-                div.appendChild(textSpan);
-
-                let actions = document.createElement('div');
-                let addBtn = document.createElement('span');
-                addBtn.className = 'add-action';
-                addBtn.innerText = '[ADD]';
-                addBtn.onclick = () => addItemToPlate(item.name, item.carbs);
-                actions.appendChild(addBtn);
-
-                let delBtn = document.createElement('button');
-                delBtn.className = 'delete-action';
-                delBtn.innerText = '🗑 Delete';
-                delBtn.onclick = (e) => { e.stopPropagation(); removeFoodFromLibrary(item.id, item.isCustom); };
-                actions.appendChild(delBtn);
-
-                div.appendChild(actions);
-                container.appendChild(div);
-            });
-        }
-
-        function addItemToPlate(name, carbs) {
-            activePlate.push({ id: Date.now().toString() + Math.random(), name: name, carbs: carbs });
-            document.getElementById('scrollWindow').style.display = 'none';
-            document.getElementById('dropdownArrow').innerText = '▼';
-            updatePlateView();
-        }
-
-        function addFoodToLibrary() {
-            let nameInput = document.getElementById('newFoodName');
-            let carbsInput = document.getElementById('newFoodCarbs');
-            let name = nameInput.value.trim();
-            let carbs = parseFloat(carbsInput.value);
-
-            if (!name) return alert('Please enter a food name.');
-            if (isNaN(carbs) || carbs <= 0 || carbs > MAX_CUSTOM_CARBS) return alert(`Please enter carbs between 0 and ${MAX_CUSTOM_CARBS}g.`);
-
-            customLibrary.push({ id: 'custom_' + Date.now(), name: '🆕 ' + name, carbs: carbs });
-            localStorage.setItem('carb-counter-custom-library-v1', JSON.stringify(customLibrary));
-
-            nameInput.value = '';
-            carbsInput.value = '';
-            renderLibraryMenu();
-            alert('New custom food saved to library DB!');
-        }
-
-        function removeFoodFromLibrary(id, isCustom) {
-            hiddenLibraryIds.push(id);
-            localStorage.setItem('carb-counter-hidden-library-items-v1', JSON.stringify(hiddenLibraryIds));
-            if (isCustom) {
-                customLibrary = customLibrary.filter(i => i.id !== id);
-                localStorage.setItem('carb-counter-custom-library-v1', JSON.stringify(customLibrary));
-            }
-            renderLibraryMenu();
-        }
-
-        function removePlateItem(id) {
-            activePlate = activePlate.filter(i => i.id !== id);
-            updatePlateView();
-            document.getElementById('resultPanel').style.display = 'none';
-        }
-
-        function clearActivePlate() {
-            activePlate = [];
-            updatePlateView();
-            document.getElementById('resultPanel').style.display = 'none';
-            document.getElementById('warningPanel').style.display = 'none';
-        }
-
-        function updatePlateView() {
-            let basket = document.getElementById('plateBasket');
-            basket.innerHTML = '';
-            let total = 0;
-
-            if (activePlate.length === 0) {
-                basket.innerHTML = '<div style="font-style: italic; color: #868e96; font-size: 13px; text-align: center;">Your plate basket is empty.</div>';
-            } else {
-                activePlate.forEach(item => {
-                    total += item.carbs;
-                    basket.innerHTML += `<div class="plate-card"><span>${item.name}</span><div><span style="font-weight:600; margin-right:12px;">${item.carbs}g</span><span class="btn-remove-plate" onclick="removePlateItem('${item.id}')">[REMOVE]</span></div></div>`;
-                });
-            }
-            document.getElementById('totalCarbsLabel').innerText = total + 'g';
-        }
-
-        function savePersonalSettings() {
-            let ratioVal = document.getElementById('ratio').value;
-            let targetVal = document.getElementById('targetBg').value;
-            let factorVal = document.getElementById('factor').value;
-
-            let settings = { ratio: ratioVal, targetBg: targetVal, correctionFactor: factorVal, roundingStep: roundingStep, bgUnit: bgUnit };
-            localStorage.setItem('carb-counter-settings-v1', JSON.stringify(settings));
-            alert('Personal defaults saved successfully!');
-        }
-
-        function calculateTotalDose() {
-            let ratio = parseFloat(document.getElementById('ratio').value);
-            let totalCarbs = activePlate.reduce((s, i) => s + i.carbs, 0);
-
-            if (activePlate.length === 0) return alert('Your plate basket is empty! Add foods first.');
-            if (isNaN(ratio) || ratio <= 0) return alert('Please enter a valid Insulin-to-Carb ratio.');
-
-            let mealDose = totalCarbs / ratio;
-            let correctionDose = 0;
-
-            let current = parseFloat(document.getElementById('currentBg').value);
-            let target = parseFloat(document.getElementById('targetBg').value);
-            let factor = parseFloat(document.getElementById('factor').value);
-
-            if (!isNaN(current) && !isNaN(target) && !isNaN(factor) && factor > 0) {
-                if (current > target) {
-                    correctionDose = (current - target) / factor;
-                }
-            }
-
-            let exact = mealDose + correctionDose;
-            let roundVal = parseFloat(roundingStep);
-            let rounded = (Math.round(exact / roundVal) * roundVal).toFixed(1);
-
-            // Update the result panel
-            let panel = document.getElementById('resultPanel');
-            panel.style.display = 'block';
-            panel.innerHTML = `
-                <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div>
-                <div style="font-size:13px; margin-top:4px;">Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div>
-                <div class="result-value">${rounded} Units Recommendation</div>
-            `;
-
-            let panel = document.getElementById('resultPanel');
-            panel.style.display = 'block';
-            panel.innerHTML = `
-                <div style="font-size:14px; color:#185abc;">Total Carbs: <strong>${totalCarbs}g</strong></div>
-                <div style="font-size:13px; margin-top:4px;">Meal Bolus: ${mealDose.toFixed(1)} U | Correction: ${correctionDose.toFixed(1)} U</div>
-                <div class="result-value">${rounded} Units Recommendation</div>
-            `;
-
-            let warn = document.getElementById('warningPanel');
-            if (exact >= HIGH_DOSE_WARNING_UNITS) {
-                warn.style.display = 'block';
-                warn.innerHTML = `<div class="warning-box">🚨 Safety Warning: Large Insulin Dose Detected! Double-check inputs carefully.</div>`;
-            } else {
-                warn.style.display = 'none';
-            }
-
-            let time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            historyLog.unshift({ id: Date.now().toString(), time: time, carbs: totalCarbs, dose: rounded });
-            renderLogbook();
-        }
-
-        function removeHistoryEntry(id) {
-            historyLog = historyLog.filter(e => e.id !== id);
-            renderLogbook();
-        }
-
-        function renderLogbook() {
-            let log = document.getElementById('logbookPanel');
-            log.innerHTML = '';
-            if (historyLog.length === 0) {
-                log.innerHTML = '<div style="font-style: italic; color: #adb5bd; text-align: center; margin-top: 10px;">No entries logged yet today.</div>';
-            } else {
-                historyLog.forEach(e => {
-                    log.innerHTML += `
-                <div class="log-card">
-                    <div class="log-row">
-                        <span style="font-weight:bold; color:#212529;">Logged Meal Entry</span>
-                        <span style="color:#868e96; font-size:12px;">${e.time}</span>
-                    </div>
-                    <div style="font-size:13px; color:#495057; display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-                        <span>${e.carbs}g carbs total → <span style="font-weight:bold; color:#28a745;">${e.dose} Units</span></span>
-                        <span style="color:#dc3545; font-size:11px; font-weight:bold; cursor:pointer;" onclick="removeHistoryEntry('${e.id}')">[DELETE]</span>
-                    </div>
-                </div>`;
-                });
-            }
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // Initial launch configuration load execution
-        loadSavedDefaults();
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
