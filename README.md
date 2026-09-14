@@ -104,6 +104,22 @@ npx expo export --platform web
 
 This creates a `dist/` folder that can be hosted on static hosting providers (for example, GitHub Pages).
 
+### One-command GitHub Pages deploy
+
+This project now includes one-command deployment for GitHub Pages:
+
+```bash
+npm run deploy
+```
+
+It will:
+- build the web app (`expo export -p web`)
+- publish the `dist/` folder to the `gh-pages` branch
+
+Then in GitHub, set **Settings → Pages → Source** to **Deploy from a branch**, and choose:
+- Branch: `gh-pages`
+- Folder: `/ (root)`
+
 ## Project structure
 
 - `App.js` — main app logic and UI
