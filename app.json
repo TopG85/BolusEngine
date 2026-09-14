@@ -19,8 +19,8 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "single"
-      "publicPath": "./"    
+      "output": "single",
+      "publicPath": "./"
     },
     "plugins": [
       "expo-status-bar"
