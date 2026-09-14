@@ -365,9 +365,9 @@ export default function App() {
         </TouchableOpacity>
 
         {showMenu && (
-          <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 260, overflow: 'hidden' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#dee2e6', marginBottom: 10, height: 280, overflow: 'hidden' }}>
             <View style={{ paddingHorizontal: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f1f3f5', backgroundColor: '#f8f9fa' }}>
-              <Text style={{ fontSize: 12, color: '#6c757d', fontWeight: '700' }}>Saved custom foods show a red Delete button.</Text>
+              <Text style={{ fontSize: 12, color: '#6c757d', fontWeight: '700' }}>Custom items have a trash button beside them.</Text>
             </View>
             <ScrollView style={{ flex: 1 }} nestedScrollEnabled={true} keyboardShouldPersistTaps="handled">
               {fullLibraryFoods.map((foodItem) => (
@@ -379,8 +379,18 @@ export default function App() {
                   </TouchableOpacity>
 
                   {foodItem.isCustom && (
-                    <TouchableOpacity onPress={() => removeFoodFromLibrary(foodItem.id)} style={{ backgroundColor: '#ffe3e3', borderWidth: 1, borderColor: '#f5c2c7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6 }}>
-                      <Text style={{ color: '#b02a37', fontWeight: '700', fontSize: 12 }}>Delete</Text>
+                    <TouchableOpacity
+                      onPress={() => removeFoodFromLibrary(foodItem.id)}
+                      style={{
+                        backgroundColor: '#dc3545',
+                        borderRadius: 8,
+                        paddingHorizontal: 10,
+                        paddingVertical: 8,
+                        minWidth: 76,
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12 }}>🗑 Delete</Text>
                     </TouchableOpacity>
                   )}
                 </View>
