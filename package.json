@@ -1,6 +1,7 @@
 {
   "homepage": "https://github.com/TopG85/BolusEngine",
-  "name": "BolusEngine",
+  "name": "bolusengine",
+  "slug": "bolus-engine",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",

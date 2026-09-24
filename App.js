@@ -367,7 +367,7 @@ export default function App() {
     <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <View style={{ backgroundColor: '#fff', paddingTop: 50, paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#dee2e6', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20 }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' }}>Multi-Select Carb Counter</Text>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1a1a1a' }}>BolusEngine</Text>
           <TouchableOpacity onPress={() => setHelpModalVisible(true)} style={{ padding: 6 }}>
             <Text style={{ color: '#6c757d', fontWeight: '700' }}>Help</Text>
           </TouchableOpacity>
