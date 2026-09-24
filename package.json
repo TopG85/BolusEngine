@@ -1,6 +1,6 @@
 {
-  "homepage": "https://topg_85.github.io/carb-counter-app",
-  "name": "carb-counter-app",
+  "homepage": "https://github.com/TopG85/BolusEngine",
+  "name": "BolusEngine",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",

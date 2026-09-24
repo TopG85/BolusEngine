@@ -58,9 +58,9 @@ const BG_LIMITS = {
   mmol: { min: 2, max: 33, unitLabel: 'mmol/L' },
   mgdl: { min: 36, max: 600, unitLabel: 'mg/dL' }
 };
-const SETTINGS_STORAGE_KEY = 'carb-counter-settings-v1';
-const CUSTOM_LIBRARY_STORAGE_KEY = 'carb-counter-custom-library-v1';
-const HIDDEN_LIBRARY_ITEMS_STORAGE_KEY = 'carb-counter-hidden-library-items-v1';
+const SETTINGS_STORAGE_KEY = 'bolus-engine-settings-v1';
+const CUSTOM_LIBRARY_STORAGE_KEY = 'bolus-engine-custom-library-v1';
+const HIDDEN_LIBRARY_ITEMS_STORAGE_KEY = 'bolus-engine-hidden-library-items-v1';
 const getCorrectionFactorHelpText = (bgUnit) =>
   bgUnit === 'mmol'
     ? 'Correction factor = how much 1 unit lowers your BG. Example: 2 mmol/L per 1 unit means 1 unit should lower BG by about 2 mmol/L.'

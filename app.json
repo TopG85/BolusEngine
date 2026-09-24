@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "carb-counter-app",
-    "slug": "carb-counter-app",
+    "name": "BolusEngine",
+    "slug": "bolus-engine",
     "experiments": {
-      "baseUrl": "/carb-counter-app"
+      "baseUrl": "/bolus-engine"
     },
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "baseUrl": "/carb-counter-app"
+      "baseUrl": "/bolus-engine"
     },
     "plugins": [
       "expo-status-bar"
